@@ -1,0 +1,5 @@
+fragment Markup on Markup {
+  percent
+  flat
+  minCharge
+}

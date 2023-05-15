@@ -1,0 +1,36 @@
+fragment AdminFundingSource on FundingSource {
+  ... on CreditCardFundingSource {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    state
+    currency
+    fingerprint
+    last4
+    cardType
+    network
+  }
+  ... on BankAccountFundingSource {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    state
+    currency
+    fingerprint
+    last4
+    bankAccountType
+    authorization {
+      content
+      contentType
+      language
+      data
+      signature
+      algorithm
+      keyId
+    }
+  }
+}

@@ -1,0 +1,5 @@
+query listVirtualCardsBySudo($input: ListVirtualCardsBySudoRequest!) {
+  listVirtualCardsBySudo(input: $input) {
+    ...VirtualCardWithoutSealedAttributes
+  }
+}

@@ -1,0 +1,8 @@
+fragment Merchant on Merchant {
+  id
+  mcc
+  country
+  city
+  state
+  postalCode
+}

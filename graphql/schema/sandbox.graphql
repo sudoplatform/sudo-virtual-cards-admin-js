@@ -1,0 +1,56 @@
+schema {
+  query: Query
+}
+
+type PlaidAccountMetadata {
+  """
+  ID of the bank account.
+  """
+  accountId: String!
+
+  """
+  Bank account subtype. E.g. checking, saving etc.
+  """
+  subtype: String
+}
+
+"""
+Response containing the public token and bank account metadata to complete bank account funding source provisioning in a sandbox context.
+"""
+type GetPlaidSandboxDataResponse {
+  """
+  Metadata of the bank account including ID and subtype.
+  """
+  accountMetadata: [PlaidAccountMetadata!]!
+
+  """
+  The public token that is required to build completion data for creating
+  a bank account funding source.
+  """
+  publicToken: String!
+}
+
+"""
+Request to generate and retrieve the public token and bank account id required
+to complete bank account funding source provisioning in a sandbox context.
+
+List of supported sandbox institutionId: https://plaid.com/docs/sandbox/institutions/
+"""
+input GetPlaidSandboxDataRequest {
+  institutionId: String!
+}
+
+type Query {
+  """
+  Generates and returns the Plaid sandbox public token and account id required to
+  provide information to build the bank account funding source completion data.
+  """
+  getPlaidSandboxData(
+    input: GetPlaidSandboxDataRequest!
+  ): GetPlaidSandboxDataResponse!
+    @aws_cognito_user_pools(
+      cognito_groups: ["[TENANT]/Developer", "[TENANT]/Admin"]
+    )
+    @aws_iam
+    @aws_api_key
+}

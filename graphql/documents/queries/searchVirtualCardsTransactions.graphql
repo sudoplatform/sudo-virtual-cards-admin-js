@@ -1,0 +1,15 @@
+query SearchVirtualCardsTransactions(
+  $input: SearchVirtualCardsTransactionsRequest!
+) {
+  searchVirtualCardsTransactions(input: $input) {
+    id
+    cardState
+    last4
+    transactions {
+      items {
+        ...Transaction
+      }
+      nextToken
+    }
+  }
+}

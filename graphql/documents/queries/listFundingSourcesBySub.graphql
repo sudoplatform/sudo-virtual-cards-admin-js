@@ -1,0 +1,5 @@
+query listFundingSourcesBySub($input: ListFundingSourcesBySubRequest!) {
+  listFundingSourcesBySub(input: $input) {
+    ...AdminFundingSource
+  }
+}

@@ -1,0 +1,17 @@
+fragment TransactionDetail on TransactionDetail {
+  virtualCardAmount {
+    ...UserCurrencyAmount
+  }
+  markup {
+    ...Markup
+  }
+  serviceFee {
+    ...UserCurrencyAmount
+  }
+  fundingSourceId
+  fundingSourceAmount {
+    ...UserCurrencyAmount
+  }
+  fundingSourceLast4
+  fundingSourceNetwork
+}

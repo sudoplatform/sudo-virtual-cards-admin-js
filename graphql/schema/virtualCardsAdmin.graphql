@@ -1,0 +1,726 @@
+schema {
+  query: Query
+}
+
+enum TransactionType {
+  PENDING
+  COMPLETE
+  REVERSAL
+  REFUND
+  DECLINE
+  CHARGEBACK
+}
+
+enum CardState {
+  ISSUED
+  FAILED
+  CLOSED
+  SUSPENDED
+}
+
+enum CreditCardNetwork {
+  AMEX
+  DINERS
+  DISCOVER
+  JCB
+  MASTERCARD
+  UNIONPAY
+  VISA
+  OTHER
+}
+
+"""
+Owner Id derived from the owner proof.
+"""
+type Owner @aws_iam @aws_api_key @aws_cognito_user_pools {
+  id: String!
+  issuer: String!
+}
+
+"""
+ACTIVE: Funding source is completely set up and in a state suitable
+for funding virtual card transactions
+
+INACTIVE: Funding source is inactive. Is not usable for funding of new transactions
+but may receive refunds or additional charges on partially complete transactions.
+"""
+enum FundingSourceState {
+  ACTIVE
+  INACTIVE
+}
+
+interface CommonObject {
+  """
+  ID of the object
+  """
+  id: ID!
+
+  """
+  ID of the user which owns the object.
+  """
+  owner: ID!
+
+  """
+  Update version of the object
+  """
+  version: Int!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  was created
+  """
+  createdAtEpochMs: Float!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  last updated
+  """
+  updatedAtEpochMs: Float!
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+  PREPAID
+  OTHER
+}
+
+enum BankAccountType {
+  SAVINGS
+  CHECKING
+  OTHER
+}
+
+type CreditCardFundingSource implements CommonObject
+  @aws_cognito_user_pools
+  @aws_api_key
+  @aws_iam {
+  """
+  See CommonObject.id
+  """
+  id: ID!
+
+  """
+  See CommonObject.owner
+  """
+  owner: ID!
+
+  """
+  See CommonObject.version
+  """
+  version: Int!
+
+  """
+  See CommonObject.createdAtEpochMs
+  """
+  createdAtEpochMs: Float!
+
+  """
+  See CommonObject.updatedAtEpochMs
+  """
+  updatedAtEpochMs: Float!
+
+  """
+  State of funding source.
+  """
+  state: FundingSourceState!
+
+  """
+  Currency that funding source is denominated in.
+  """
+  currency: String!
+
+  """
+  The unique fingerprint of the funding source.
+  """
+  fingerprint: ID!
+
+  """
+  Last 4 digits of user's credit card
+  """
+  last4: String!
+
+  """
+  Type of card
+  """
+  cardType: CardType!
+
+  """
+  Card network of card
+  """
+  network: CreditCardNetwork!
+}
+
+type SignedAuthorizationText @aws_cognito_user_pools @aws_api_key @aws_iam {
+  """
+  Data that is signed. This is a serialised JSON document of the form:
+  {
+    "hash":"<base64-encoded-hash-of-authorization-agreement-text-agreed-to>",
+    "hashAlgorithm":"<algorithm-used-to-hash-the-agreement-text>",
+    "signedAt":"<ISO8601-UTC-timestamp-of-time-signature-generated>",
+    "account":"<unique-identifier-of-account-agreement-pertains-to>",
+  }
+  """
+  data: String!
+
+  """
+  Base64 encoded signature of the data
+  """
+  signature: String!
+  """
+  Algorithm used to generate the signature.
+  """
+  algorithm: String!
+
+  """
+  ID of public key registered with the virtual cards service corresponding
+  to the private key used to generate the signature
+  """
+  keyId: String!
+
+  """
+  Full content of the agreement
+  """
+  content: String!
+
+  """
+  Content type of the agreement. For example text/plain or text/html.
+  """
+  contentType: String!
+
+  """
+  RFC 5646 language tag specifying the language of the agreement
+  """
+  language: String!
+}
+
+type BankAccountFundingSource implements CommonObject
+  @aws_cognito_user_pools
+  @aws_api_key
+  @aws_iam {
+  """
+  See CommonObject.id
+  """
+  id: ID!
+
+  """
+  See CommonObject.owner
+  """
+  owner: ID!
+
+  """
+  See CommonObject.version
+  """
+  version: Int!
+
+  """
+  See CommonObject.createdAtEpochMs
+  """
+  createdAtEpochMs: Float!
+
+  """
+  See CommonObject.updatedAtEpochMs
+  """
+  updatedAtEpochMs: Float!
+
+  """
+  State of funding source.
+  """
+  state: FundingSourceState!
+
+  """
+  Currency that funding source is denominated in.
+  """
+  currency: String!
+
+  """
+  The unique fingerprint of the funding source.
+  """
+  fingerprint: ID!
+
+  """
+  Last 4 digits of user's bank account number.
+  """
+  last4: String!
+
+  """
+  Bank account type
+  """
+  bankAccountType: BankAccountType!
+
+  """
+  The signed authorization providing authority to transact on the bank account.
+  """
+  authorization: SignedAuthorizationText!
+}
+
+union FundingSource = CreditCardFundingSource | BankAccountFundingSource
+
+"""
+Admin representation of a virtual card.
+"""
+type VirtualCard implements CommonObject
+  @aws_iam
+  @aws_api_key
+  @aws_cognito_user_pools {
+  """
+  ID of the object
+  """
+  id: ID!
+
+  """
+  ID of the user which owns the object.
+  """
+  owner: ID!
+
+  """
+  Update version of the object
+  """
+  version: Int!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  was created
+  """
+  createdAtEpochMs: Float!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  last updated
+  """
+  updatedAtEpochMs: Float!
+
+  """
+  Public key encryption algorithm specifier. See Sudo Platform documentation
+  for set of allowed values.
+  """
+  algorithm: String!
+
+  """
+  Client generated key ID for the public key.
+  """
+  keyId: String!
+
+  """
+  Client generated key ring ID for the public key ring used
+  for sealing this card and transactions information for this
+  card.
+  """
+  keyRingId: ID!
+
+  """
+  Array of owner Ids that are extracted from the owner proofs
+  to tie a virtual card to a Sudo.
+  """
+  owners: [Owner!]!
+
+  """
+  ID of funding source that will be used to fund activity on
+  the card.
+  """
+  fundingSourceId: ID!
+
+  """
+  A representation of the currency of the virtual card (i.e. USD, CAD, AUD).
+  """
+  currency: String!
+
+  """
+  State of virtual card which define incomplete, provisioning and expiry processing of virtual cards.
+  """
+  state: CardState!
+
+  """
+  Time since epoch in which the virtual card will no longer be valid in system.
+  """
+  activeToEpochMs: Float!
+
+  """
+  Time since epoch in which the card was cancelled.
+  """
+  cancelledAtEpochMs: Float
+
+  """
+  Last 4 digits of card number.
+  """
+  last4: String!
+}
+
+type UserCurrencyAmount @aws_cognito_user_pools {
+  """
+  Currency of currency amount.
+  """
+  currency: String!
+
+  """
+  Amount of currency amount in currency's decimal unit.
+  """
+  amount: Float!
+}
+
+"""
+Representation of a markup formula.
+"""
+type Markup @aws_cognito_user_pools {
+  """
+  Floating point percentage amount applied in calculating
+  total markup multiple by 1000. For example: 2990 for 2.99%.
+  1/1000th of a percent is the smallest granularity that can be
+  represented.
+  """
+  percent: String!
+
+  """
+  Flat amount applied in calculating total markup in minor
+  currency unit of billed currency in containing transaction detail.
+  e.g. 31 for $0.31
+  """
+  flat: String!
+
+  """
+  The minimum charge that will be made to the funding source. For example,
+  if a small charge of $0.10 were made with a 2.99%+$0.31 fee formula
+  then the resultant fee would be $0.31 cents resulting in an expected
+  funding source charge of $0.41 cents. If minCharge is set and more than
+  this amount then the minCharge will be charged instead.
+  """
+  minCharge: String
+}
+
+type Merchant @aws_cognito_user_pools {
+  """
+  ID of the merchant that a transaction was against.
+  """
+  id: ID!
+
+  """
+  Merchant Category Code (MCC) that the  merchant belongs to.
+  """
+  mcc: String!
+
+  """
+  Country that the merchant charging the virtual card is in.
+  """
+  country: String!
+
+  """
+  City that the merchant charging the virtual card is in.
+  """
+  city: String
+
+  """
+  State that the merchant charging the virtual card is in.
+  """
+  state: String
+
+  """
+  Postal code that the merchant charging the virtual card is in.
+  """
+  postalCode: String
+}
+
+"""
+Transaction detail. Depending on transaction type will detail
+things like fees, real credit card transaction details etc.
+"""
+type TransactionDetail @aws_cognito_user_pools {
+  """
+  Amount merchant charged virtual card.
+  """
+  virtualCardAmount: UserCurrencyAmount!
+
+  """
+  Markup formula applied to billedAmount.
+  """
+  markup: Markup!
+
+  """
+  Amount of the service fee applied to the transacted amount.
+  """
+  serviceFee: UserCurrencyAmount!
+
+  """
+  ID of funding source that funded this item.
+  """
+  fundingSourceId: ID!
+
+  """
+  Amount charged or refunded to the funding source.
+  """
+  fundingSourceAmount: UserCurrencyAmount!
+
+  """
+  Last 4 digits of a user's credit card.
+  """
+  fundingSourceLast4: String!
+
+  """
+  Card network of a funding source.
+  """
+  fundingSourceNetwork: CreditCardNetwork!
+}
+
+type Transaction @aws_cognito_user_pools {
+  """
+  ID of the object.
+  """
+  id: ID!
+
+  """
+  ID of the user which owns the object.
+  """
+  owner: ID!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  was created.
+  """
+  createdAtEpochMs: Float!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  last updated.
+  """
+  updatedAtEpochMs: Float!
+
+  """
+  Type of this transaction.
+  """
+  type: TransactionType!
+
+  """
+  Time at which transaction occurred.
+  """
+  transactedAtEpochMs: String!
+
+  """
+  Amount of this transaction as billed to the card in
+  the card's denominated currency.
+  """
+  billedAmount: UserCurrencyAmount!
+
+  """
+  Amount of this transaction as charged by the merchant
+  in the merchant's currency.
+  """
+  transactedAmount: UserCurrencyAmount!
+
+  """
+  Details excluding the name of the merchant.
+  """
+  merchant: Merchant!
+
+  """
+  Decline reason if transaction of type DECLINE.
+  """
+  declineReason: String
+
+  """
+  List of details about this transaction depending on transaction type.
+  Pending, complete and refund transactions will always have detail.
+  Decline will have detail if an attempt was made to charge the
+  funding source.
+  """
+  detail: [TransactionDetail!]
+}
+
+type TransactionConnection @aws_cognito_user_pools {
+  items: [Transaction!]!
+  nextToken: String
+}
+
+type TransactionResponse @aws_cognito_user_pools @aws_api_key {
+  """
+  ID of card data is returned for
+  """
+  id: ID!
+
+  """
+  State of virtual card which define issued, failed
+  and closed states of virtual cards.
+  """
+  cardState: CardState!
+
+  """
+  Last 4 digits of card number.
+  """
+  last4: String!
+
+  """
+  List of paginated transactions.
+  """
+  transactions: TransactionConnection!
+}
+
+"""
+Request used to search for virtual card transactions.
+"""
+input SearchVirtualCardsTransactionsRequest {
+  """
+  ID of the user that owns the transactions.
+  """
+  userId: ID!
+
+  """
+  Last 4 digits of card number.
+  """
+  last4: String!
+
+  """
+  Starting date range of transactions to search.
+  """
+  startDate: String!
+
+  """
+  Ending date range of transactions to search.
+  """
+  endDate: String!
+
+  """
+  Max number of transaction records to fetch
+  """
+  limit: Int
+
+  """
+  Token indicating the start of the next batch
+  of records to fetch.
+  """
+  nextToken: String
+}
+
+"""
+Request used to retrive for virtual cards activity for a period.
+"""
+input GetVirtualCardsActiveRequest {
+  """
+  Starting date range of transactions to search.
+
+  Start date is rounded down to the beginning of the day in which startDate
+  occurs according to timeZone.
+  """
+  startDate: String!
+
+  """
+  Ending date range of transactions to search.
+
+  End date is rounded up to the end of the day in which endDate
+  occurs according to timeZone.
+  """
+  endDate: String!
+
+  """
+  Timezone in which to determine end of a day. Default is UTC.
+  Timezone is named according to POSIX time zone naming e.g. "America/New_York" or
+  "-04:00" or "Z" or "UTC"
+  """
+  timeZone: String
+}
+
+"""
+Response containing daily totals of active and cancelled virtual
+cards.
+"""
+type GetVirtualCardsActiveResponse @aws_cognito_user_pools @aws_iam {
+  """
+  ISO8601 representation of rounded start date in time zone specified in request.
+  """
+  startDate: String!
+
+  """
+  ISO8601 representation of rounded end date in time zone specified in request.
+  """
+  endDate: String!
+
+  """
+  Timezone used in response
+  """
+  timeZone: String!
+
+  """
+  Number of active cards on each day in the range. Array will have n-days elements
+  where n-days is the number of full days represented by startDate and endDate.
+
+  A card is considered active on a day if it is active for any part of a day.
+  """
+  activeCards: [Int!]!
+}
+
+input ListVirtualCardsBySudoRequest {
+  sudoId: String!
+}
+
+input ListVirtualCardsBySubRequest {
+  sub: String!
+}
+
+input ListFundingSourcesBySubRequest {
+  sub: String!
+}
+
+type Query {
+  searchVirtualCardsTransactions(
+    input: SearchVirtualCardsTransactionsRequest!
+  ): TransactionResponse!
+    @aws_cognito_user_pools(
+      cognito_groups: [
+        "[TENANT]/Developer"
+        "[TENANT]/Support"
+        "[TENANT]/Admin"
+      ]
+    )
+    @aws_iam
+    @aws_api_key
+
+  listVirtualCardsBySudo(
+    input: ListVirtualCardsBySudoRequest!
+  ): [VirtualCard!]!
+    @aws_cognito_user_pools(
+      cognito_groups: [
+        "[TENANT]/Developer"
+        "[TENANT]/Support"
+        "[TENANT]/Admin"
+      ]
+    )
+    @aws_iam
+    @aws_api_key
+
+  listVirtualCardsBySub(input: ListVirtualCardsBySubRequest!): [VirtualCard!]!
+    @aws_cognito_user_pools(
+      cognito_groups: [
+        "[TENANT]/Developer"
+        "[TENANT]/Support"
+        "[TENANT]/Admin"
+      ]
+    )
+    @aws_iam
+    @aws_api_key
+
+  listFundingSourcesBySub(
+    input: ListFundingSourcesBySubRequest!
+  ): [FundingSource!]!
+    @aws_cognito_user_pools(
+      cognito_groups: [
+        "[TENANT]/Developer"
+        "[TENANT]/Support"
+        "[TENANT]/Admin"
+      ]
+    )
+    @aws_iam
+    @aws_api_key
+
+  """
+  Return number of virtual cards active on a set of days.
+  """
+  getVirtualCardsActive(
+    input: GetVirtualCardsActiveRequest!
+  ): GetVirtualCardsActiveResponse!
+    @aws_cognito_user_pools(
+      cognito_groups: [
+        "[TENANT]/Developer"
+        "[TENANT]/Support"
+        "[TENANT]/Admin"
+      ]
+    )
+    @aws_iam
+    @aws_api_key
+}

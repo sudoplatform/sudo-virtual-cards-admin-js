@@ -1,0 +1,4 @@
+fragment UserCurrencyAmount on UserCurrencyAmount {
+  currency
+  amount
+}

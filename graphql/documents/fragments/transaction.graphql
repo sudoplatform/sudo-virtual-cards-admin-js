@@ -1,0 +1,21 @@
+fragment Transaction on Transaction {
+  id
+  owner
+  createdAtEpochMs
+  updatedAtEpochMs
+  type
+  transactedAtEpochMs
+  billedAmount {
+    ...UserCurrencyAmount
+  }
+  transactedAmount {
+    ...UserCurrencyAmount
+  }
+  merchant {
+    ...Merchant
+  }
+  declineReason
+  detail {
+    ...TransactionDetail
+  }
+}

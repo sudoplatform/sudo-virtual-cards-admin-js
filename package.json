@@ -1,0 +1,133 @@
+{
+  "name": "@sudoplatform/sudo-virtual-cards-admin",
+  "version": "2.0.0",
+  "author": "Anonyome Labs, Inc.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sudoplatform/sudo-virtual-cards-admin-js.git"
+  },
+  "license": "Apache-2.0",
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "yarn lint:eslint && yarn lint:prettier",
+    "lint:eslint": "eslint \"{bin,test,src}/**/*.{js,ts,tsx}\"",
+    "lint:prettier": "prettier --write \"**/*.{js,ts,json,yml}\"",
+    "codegen": "graphql-codegen -c codegen.yml",
+    "preverify": "yarn codegen",
+    "verify": "yarn audit-with-suppressions && yarn lint && yarn unit-test",
+    "unit-test": "jest --verbose --coverage src",
+    "integration-test": "jest test/integration --passWithNoTests",
+    "clean": "yarn rimraf ./docs ./lib ./cjs ./types",
+    "build": "yarn codegen && yarn build:transpile && yarn build:docs",
+    "build:transpile": "concurrently \"yarn build:transpile:declarations\" \"yarn build:transpile:cjs\" \"yarn build:transpile:esm\"",
+    "build:transpile:cjs": "tsc --project tsconfig.commonjs.json",
+    "build:transpile:esm": "tsc",
+    "build:transpile:declarations": "tsc --project tsconfig.declarations.json",
+    "build:docs": "typedoc --treatWarningsAsErrors --excludePrivate --out docs src/index.ts"
+  },
+  "main": "./cjs/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./lib/index.js",
+      "require": "./cjs/index.js",
+      "default": "./lib/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "cjs",
+    "lib",
+    "docs",
+    "types"
+  ],
+  "peerDependencies": {
+    "@sudoplatform/bunyan": "^1.8.15",
+    "@sudoplatform/sudo-common": "^8.0.0"
+  },
+  "dependencies": {
+    "@graphql-typed-document-node/core": "^3.1.1",
+    "apollo-cache-inmemory": "^1.6.6",
+    "aws-appsync": "^4.1.9",
+    "fp-ts": "^2.13.1",
+    "graphql": "15.8.0",
+    "io-ts": "^2.2.20",
+    "io-ts-types": "^0.5.19",
+    "monocle-ts": "^2.3.13",
+    "newtype-ts": "^0.3.5",
+    "redux": "^4.2.0",
+    "tslib": "^2.4.1",
+    "uuid": "^9.0.0"
+  },
+  "resolutions": {
+    "**/apollo-client": "^2.6.10",
+    "**/apollo-link-http": "^1.5.17",
+    "**/apollo-link": "^1.2.14",
+    "**/apollo-cache-inmemory": "^1.6.6",
+    "node-fetch": "^2.6.9",
+    "@graphql-tools/utils": "^8.13.1",
+    "json5": "^2.2.2",
+    "xml2js": "^0.5.0"
+  },
+  "devDependencies": {
+    "@aws-sdk/abort-controller": "^3.0.0",
+    "@graphql-codegen/add": "^4.0.0",
+    "@graphql-codegen/cli": "^3.0.0",
+    "@graphql-codegen/typed-document-node": "^3.0.0",
+    "@graphql-codegen/typescript": "^3.0.0",
+    "@graphql-codegen/typescript-operations": "^3.0.0",
+    "@graphql-tools/utils": "^8.13.1",
+    "@sudoplatform/sudo-common": "^8.5.1",
+    "@sudoplatform/sudo-user": "^13.0.0",
+    "@types/jest": "^27.5.2",
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^16.18.12",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "apollo-client": "^2.6.10",
+    "aws-sdk": "2.1083.0",
+    "bunyan": "^1.8.15",
+    "concurrently": "^7.6.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-import": "^2.27.2",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-tree-shaking": "^1.10.0",
+    "husky": "^8.0.3",
+    "isomorphic-fetch": "^3.0.0",
+    "jest": "^27.5.1",
+    "lodash": "^4.17.21",
+    "prettier": "^2.8.2",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^27.1.5",
+    "ts-mockito": "^2.6.1",
+    "ts-node": "^10.9.1",
+    "typedoc": "^0.23.24",
+    "typescript": "^4.9.4",
+    "wait-for-expect": "^3.0.2"
+  },
+  "outdatedSuppressions": {
+    "major": {
+      "graphql": 1679724565,
+      "node-fetch": 1679724565,
+      "jest": 1676098810,
+      "ts-jest": 1676098811,
+      "@graphql-tools/utils": 1679724564,
+      "@types/jest": 1679724564
+    }
+  },
+  "auditSuppressions": {
+    "1085251": 1674004114,
+    "1085261": 1674004100,
+    "1085291": 1674004086,
+    "1085292": 1674004059,
+    "1085321": 1674430025,
+    "1085322": 1674430016,
+    "1085403": 1674429576,
+    "1087848": 1674511932,
+    "1088370": 1674716378
+  }
+}

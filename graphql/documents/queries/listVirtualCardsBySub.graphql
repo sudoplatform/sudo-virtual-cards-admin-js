@@ -1,0 +1,5 @@
+query listVirtualCardsBySub($input: ListVirtualCardsBySubRequest!) {
+  listVirtualCardsBySub(input: $input) {
+    ...VirtualCardWithoutSealedAttributes
+  }
+}

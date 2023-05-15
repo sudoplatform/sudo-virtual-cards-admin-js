@@ -1,0 +1,14 @@
+.cache
+config
+docs
+lib
+cjs
+types
+node_modules
+yarn-error.log
+.yalc
+yalc.lock
+coverage
+.env
+package.json.old
+.DS_Store

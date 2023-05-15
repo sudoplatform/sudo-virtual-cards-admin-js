@@ -1,0 +1,20 @@
+fragment VirtualCardWithoutSealedAttributes on VirtualCard {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  algorithm
+  keyId
+  keyRingId
+  owners {
+    id
+    issuer
+  }
+  fundingSourceId
+  currency
+  state
+  activeToEpochMs
+  cancelledAtEpochMs
+  last4
+}

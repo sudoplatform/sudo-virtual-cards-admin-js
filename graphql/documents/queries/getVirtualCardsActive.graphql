@@ -1,0 +1,8 @@
+query GetVirtualCardsActive($input: GetVirtualCardsActiveRequest!) {
+  getVirtualCardsActive(input: $input) {
+    startDate
+    endDate
+    timeZone
+    activeCards
+  }
+}
