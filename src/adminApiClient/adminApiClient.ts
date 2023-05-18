@@ -1,20 +1,21 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
-  AppSyncError,
-  AppSyncNetworkError,
   ConfigurationManager,
   DefaultConfigurationManager,
   DefaultLogger,
   FatalError,
   Logger,
-  mapGraphQLToClientError,
-  mapNetworkErrorToClientError,
   UnknownGraphQLError,
 } from '@sudoplatform/sudo-common'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import { ApolloError, QueryOptions } from 'apollo-client'
 import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
 import { AuthOptions } from 'aws-appsync-auth-link'
-import { GraphQLError } from 'graphql'
 import * as t from 'io-ts'
 import { ErrorTransformer } from '../data/transformers/errorTransformer/errorTransformer'
 import {
@@ -119,39 +120,6 @@ export class AdminApiClient {
         auth: getAuthOptions(apiKey),
         disableOffline: true,
       })
-  }
-
-  private mapAndThrowError(
-    returnedError?: AppSyncError | GraphQLError,
-    thrownError?: Error,
-  ): never {
-    if (thrownError) {
-      const appSyncNetworkError = thrownError as AppSyncNetworkError
-      if (appSyncNetworkError.networkError) {
-        throw mapNetworkErrorToClientError(appSyncNetworkError)
-      }
-      const apolloError = thrownError as ApolloError
-      if (apolloError.graphQLErrors?.[0]) {
-        returnedError = apolloError.graphQLErrors?.[0]
-      } else if ((thrownError as AppSyncError).errorType) {
-        returnedError = thrownError as AppSyncError
-      } else {
-        throw new UnknownGraphQLError(thrownError)
-      }
-    }
-
-    if (returnedError) {
-      if (
-        'errorType' in returnedError &&
-        returnedError.errorType?.startsWith('sudoplatform.')
-      ) {
-        throw new FatalError(returnedError?.errorType)
-      } else {
-        throw mapGraphQLToClientError(returnedError)
-      }
-    }
-
-    throw new FatalError('no error to map')
   }
 
   public async getPlaidSandboxData(

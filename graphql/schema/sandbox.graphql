@@ -38,6 +38,7 @@ List of supported sandbox institutionId: https://plaid.com/docs/sandbox/institut
 """
 input GetPlaidSandboxDataRequest {
   institutionId: String!
+  username: String!
 }
 
 type Query {

@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { AdminApiClient } from '../adminApiClient'
 import { DefaultSudoVirtualCardsAdminClientPrivateOptions } from '../private/defaultSudoVirtualCardsAdminClientPrivateOptions'
 import { FundingSource as FundingSourceEntity } from '../entities/fundingSource'
@@ -115,6 +121,7 @@ export class DefaultVirtualCardsAdminClient
   ): Promise<GetPlaidSandboxDataResponse> {
     const input = {
       institutionId: request.institutionId,
+      username: request.username
     }
     const result = await this.adminApiClient.getPlaidSandboxData(input)
     return {

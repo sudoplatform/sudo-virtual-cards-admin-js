@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
   AppSyncError,
   ConfigurationManager,
@@ -6,8 +12,9 @@ import {
   UnknownGraphQLError,
 } from '@sudoplatform/sudo-common'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
-import { ApolloError, NetworkStatus } from 'apollo-client'
+import { NetworkStatus } from 'apollo-client'
 import { AWSAppSyncClient } from 'aws-appsync'
+import { GraphQLError } from 'graphql'
 import {
   anything,
   capture,
@@ -46,9 +53,8 @@ import {
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
-import { AdminApiClient, AdminConsoleProject } from './adminApiClient'
 import { CardNotFoundError, UnknownTimeZoneError } from '../global/error'
-import { GraphQLError } from 'graphql'
+import { AdminApiClient, AdminConsoleProject } from './adminApiClient'
 
 describe('\nadminApiClient tests', () => {
   const adminApiKey = 'admin-api-key'
@@ -87,10 +93,12 @@ describe('\nadminApiClient tests', () => {
 
   describe('getPlaidSandboxData tests', () => {
     const institutionId = 'mock-institution-id'
+    const username = 'mock-username'
     const publicToken = 'mock-public-token'
 
     const request: GetPlaidSandboxDataRequest = {
       institutionId,
+      username,
     }
 
     const result: GetPlaidSandboxDataResponse = {

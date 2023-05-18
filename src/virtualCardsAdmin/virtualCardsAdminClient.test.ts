@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
   anything,
   capture,
@@ -58,9 +64,11 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
   describe('getPlaidSandboxData', () => {
     const publicToken = 'mock-public-token'
     const institutionId = 'mock-institution-id'
+    const username = 'mock-username'
 
     const adminClientRequest: GetPlaidSandboxDataRequest = {
       institutionId,
+      username
     }
 
     const adminApiResult: GetPlaidSandboxDataResponse = {

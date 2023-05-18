@@ -145,6 +145,7 @@ export enum FundingSourceState {
  */
 export type GetPlaidSandboxDataRequest = {
   institutionId: Scalars['String']
+  username: Scalars['String']
 }
 
 /** Response containing the public token and bank account metadata to complete bank account funding source provisioning in a sandbox context. */
