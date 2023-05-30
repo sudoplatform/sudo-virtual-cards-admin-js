@@ -1,43 +1,23 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
 import { MerchantTransformer } from './merchantTransformer'
-import { Merchant as MerchantEntity } from '../../../entities/merchant'
-import { Merchant as MerchantGraphQL } from '../../../gen/graphqlTypes'
-
-const id = 'mock-id'
-const mcc = 'mock-mcc'
-const country = 'australia'
-const city = 'gold coast'
-const state = 'QLD'
-const postalCode = '4217'
-
-export const defaultMerchantEntity: MerchantEntity = {
-  id,
-  mcc,
-  country,
-  city,
-  state,
-  postalCode,
-}
-
-export const defaultMerchantGraphQL: MerchantGraphQL = {
-  __typename: 'Merchant',
-  id,
-  mcc,
-  country,
-  city,
-  state,
-  postalCode,
-}
 
 describe('MerchantTransformer tests', () => {
   it('should transform from entity to graphql', () => {
-    expect(MerchantTransformer.toGraphQL(defaultMerchantEntity)).toEqual(
-      defaultMerchantGraphQL,
+    expect(MerchantTransformer.toGraphQL(EntityDataFactory.merchant)).toEqual(
+      GraphQLDataFactory.merchant,
     )
   })
 
   it('should transform from graphql to entity', () => {
-    expect(MerchantTransformer.toEntity(defaultMerchantGraphQL)).toEqual(
-      defaultMerchantEntity,
+    expect(MerchantTransformer.toEntity(GraphQLDataFactory.merchant)).toEqual(
+      EntityDataFactory.merchant,
     )
   })
 })

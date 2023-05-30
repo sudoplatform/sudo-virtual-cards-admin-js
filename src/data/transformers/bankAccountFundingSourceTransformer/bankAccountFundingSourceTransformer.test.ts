@@ -1,73 +1,30 @@
-import { BankAccountFundingSourceTransformer } from './bankAccountFundingSourceTransformer'
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { BankAccountType as BankAccountTypeEntity } from '../../../entities/bankAccountType'
-import {
-  BankAccountFundingSource as BankAccountFundingSourceGraphQL,
-  BankAccountType as BankAccountTypeGraphQL,
-} from '../../../gen/graphqlTypes'
-import { BankAccountFundingSource as BankAccountFundingSourceEntity } from '../../../entities/bankAccountFundingSource'
-import {
-  defaultSignedAuthorizationTextEntity,
-  defaultSignedAuthorizationTextGraphQL,
-} from '../signedAuthorizationTextTransformer/signedAuthorizationTextTransformer.test'
-import {
-  defaultFundingSourceStateEntity,
-  defaultFundingSourceStateGraphQL,
-} from '../fundingSourceStateTransformer/fundingSourceStateTransformer.test'
-
-const id = 'mock-id'
-const owner = 'mock-owner-id'
-const version = 1
-const now = new Date()
-const currency = 'AUD'
-const last4 = '1234'
-const fingerprint = 'mock-fingerprint'
-
-export const defaultBankAccountFundingSourceEntity: BankAccountFundingSourceEntity =
-  {
-    id,
-    owner,
-    version,
-    createdAt: now,
-    updatedAt: now,
-    bankAccountType: BankAccountTypeEntity.Savings,
-    currency,
-    state: defaultFundingSourceStateEntity,
-    last4,
-    fingerprint,
-    authorization: defaultSignedAuthorizationTextEntity,
-  }
-
-export const defaultBankAccountFundingSourceGraphQL: BankAccountFundingSourceGraphQL =
-  {
-    __typename: 'BankAccountFundingSource',
-    id,
-    owner,
-    version,
-    createdAtEpochMs: now.getTime(),
-    updatedAtEpochMs: now.getTime(),
-    bankAccountType: BankAccountTypeGraphQL.Savings,
-    currency,
-    state: defaultFundingSourceStateGraphQL,
-    last4,
-    fingerprint,
-    authorization: defaultSignedAuthorizationTextGraphQL,
-  }
+import { BankAccountType as BankAccountTypeGraphQL } from '../../../gen/graphqlTypes'
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
+import { BankAccountFundingSourceTransformer } from './bankAccountFundingSourceTransformer'
 
 describe('BankAccountFundingSourceTransformer tests', () => {
   it('should transform from entity to graphql', () => {
     expect(
       BankAccountFundingSourceTransformer.toGraphQL(
-        defaultBankAccountFundingSourceEntity,
+        EntityDataFactory.bankAccountFundingSource,
       ),
-    ).toEqual(defaultBankAccountFundingSourceGraphQL)
+    ).toEqual(GraphQLDataFactory.bankAccountFundingSource)
   })
 
   it('should transform from graphql to entity', () => {
     expect(
       BankAccountFundingSourceTransformer.toEntity(
-        defaultBankAccountFundingSourceGraphQL,
+        GraphQLDataFactory.bankAccountFundingSource,
       ),
-    ).toEqual(defaultBankAccountFundingSourceEntity)
+    ).toEqual(EntityDataFactory.bankAccountFundingSource)
   })
 
   it.each`

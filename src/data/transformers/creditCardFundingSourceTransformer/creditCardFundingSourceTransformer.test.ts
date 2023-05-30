@@ -1,71 +1,30 @@
-import { CreditCardFundingSourceTransformer } from './creditCardFundingSourceTransformer'
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CardType as CardTypeEntity } from '../../../entities/cardType'
-import {
-  CreditCardFundingSource as CreditCardFundingSourceGraphQL,
-  CardType as CardTypeGraphQL,
-} from '../../../gen/graphqlTypes'
-import { CreditCardFundingSource as CreditCardFundingSourceEntity } from '../../../entities/creditCardFundingSource'
-import {
-  defaultFundingSourceStateEntity,
-  defaultFundingSourceStateGraphQL,
-} from '../fundingSourceStateTransformer/fundingSourceStateTransformer.test'
-import { CreditCardNetwork as CreditCardNetworkEntity } from '../../../entities/creditCardNetwork'
-import { CreditCardNetwork as CreditCardNetworkGraphQL } from '../../../gen/graphqlTypes'
-
-const id = 'mock-id'
-const owner = 'mock-owner-id'
-const version = 1
-const now = new Date()
-const currency = 'AUD'
-const last4 = '1234'
-const fingerprint = 'mock-fingerprint'
-
-export const defaultCreditCardFundingSourceEntity: CreditCardFundingSourceEntity =
-  {
-    id,
-    owner,
-    version,
-    createdAt: now,
-    updatedAt: now,
-    cardType: CardTypeEntity.Debit,
-    currency,
-    state: defaultFundingSourceStateEntity,
-    last4,
-    fingerprint,
-    network: CreditCardNetworkEntity.MasterCard,
-  }
-
-export const defaultCreditCardFundingSourceGraphQL: CreditCardFundingSourceGraphQL =
-  {
-    __typename: 'CreditCardFundingSource',
-    id,
-    owner,
-    version,
-    createdAtEpochMs: now.getTime(),
-    updatedAtEpochMs: now.getTime(),
-    cardType: CardTypeGraphQL.Debit,
-    currency,
-    state: defaultFundingSourceStateGraphQL,
-    last4,
-    fingerprint,
-    network: CreditCardNetworkGraphQL.Mastercard,
-  }
+import { CardType as CardTypeGraphQL } from '../../../gen/graphqlTypes'
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
+import { CreditCardFundingSourceTransformer } from './creditCardFundingSourceTransformer'
 
 describe('CreditCardFundingSourceTransformer tests', () => {
   it('should transform from entity to graphql', () => {
     expect(
       CreditCardFundingSourceTransformer.toGraphQL(
-        defaultCreditCardFundingSourceEntity,
+        EntityDataFactory.creditCardFundingSource,
       ),
-    ).toEqual(defaultCreditCardFundingSourceGraphQL)
+    ).toEqual(GraphQLDataFactory.creditCardFundingSource)
   })
 
   it('should transform from graphql to entity', () => {
     expect(
       CreditCardFundingSourceTransformer.toEntity(
-        defaultCreditCardFundingSourceGraphQL,
+        GraphQLDataFactory.creditCardFundingSource,
       ),
-    ).toEqual(defaultCreditCardFundingSourceEntity)
+    ).toEqual(EntityDataFactory.creditCardFundingSource)
   })
 
   it.each`

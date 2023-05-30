@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CreditCardNetwork as CreditCardNetworkEntity } from '../../../entities/creditCardNetwork'
 import { CreditCardNetwork as CreditCardNetworkGraphQL } from '../../../gen/graphqlTypes'
 

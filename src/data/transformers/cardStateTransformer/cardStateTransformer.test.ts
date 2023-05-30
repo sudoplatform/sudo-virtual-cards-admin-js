@@ -1,9 +1,12 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CardStateTransformer } from './cardStateTransformer'
 import { CardState as CardStateEntity } from '../../../entities/cardState'
 import { CardState as CardStateGraphQL } from '../../../gen/graphqlTypes'
-
-export const defaultCardStateEntity = CardStateEntity.Closed
-export const defaultCardStateGraphQL = CardStateGraphQL.Closed
 
 describe('CardStateTransformer tests', () => {
   it.each`

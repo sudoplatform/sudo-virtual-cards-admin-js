@@ -6,7 +6,10 @@
 
 import { AdminApiClient } from '../adminApiClient'
 import { DefaultSudoVirtualCardsAdminClientPrivateOptions } from '../private/defaultSudoVirtualCardsAdminClientPrivateOptions'
-import { FundingSource as FundingSourceEntity } from '../entities/fundingSource'
+import {
+  FundingSource,
+  FundingSource as FundingSourceEntity,
+} from '../entities/fundingSource'
 import { GetVirtualCardsActiveRequest } from './request/getVirtualCardsActiveRequest'
 import { GetVirtualCardsActiveResponse } from './response/getVirtualCardsActiveResponse'
 import { ListFundingSourcesBySubRequest } from './request/listFundingSourcesBySubRequest'
@@ -34,14 +37,15 @@ export interface SudoVirtualCardsAdminClient {
    * @param request Input request object containing an
    * `instituteId` property.
    *
-   * @returns Response object containing public token and
-   * array of plaid account metadata objects.
+   * @returns {GetPlaidSandboxDataResponse} Response object containing
+   * public token and array of plaid account metadata objects.
    *
    * @remarks This API is only available in sandbox environments.
    */
   getPlaidSandboxData: (
     request: GetPlaidSandboxDataRequest,
   ) => Promise<GetPlaidSandboxDataResponse>
+
   /**
    * Return the number of virtual cards active in a given
    * date range and timezone.
@@ -49,43 +53,47 @@ export interface SudoVirtualCardsAdminClient {
    * @param request Input request object containing `startDate`,
    * `endDate` and `timeZone` properties.
    *
-   * @returns Response object containing array of number of
-   * active cards.
+   * @returns {GetVirtualCardsActiveRequest} Response object containing
+   * array of number of active cards.
    */
   getVirtualCardsActive: (
     request: GetVirtualCardsActiveRequest,
   ) => Promise<GetVirtualCardsActiveResponse>
+
   /**
    * Return a list of funding sources matching a given sub.
    *
    * @param request Input request object containing `sub` property.
    *
-   * @returns Array of funding sources.
+   * @returns {FundingSourceEntity[]} Array of funding sources.
    */
   listFundingSourcesBySub: (
     request: ListFundingSourcesBySubRequest,
   ) => Promise<FundingSourceEntity[]>
+
   /**
    * Return a list of virtual cards matching a given sub.
    *
    * @param request Input request object containing 'sub' property.
    *
-   * @returns Array of virtual cards.
+   * @returns {VirtualCard[]} Array of virtual cards.
    */
   listVirtualCardsBySub: (
     request: ListVirtualCardsBySubRequest,
   ) => Promise<VirtualCard[]>
+
   /**
    * Return a list of virtual cards matching a given sudo id.
    *
    * @param input Request params object requiring a `sudoId`
    * property.
    *
-   * @returns Array of virtual cards that match input sudo id.
+   * @returns {VirtualCard[]} Array of virtual cards that match input sudo id.
    */
   listVirtualCardsBySudo: (
     input: ListVirtualCardsBySudoRequest,
   ) => Promise<VirtualCard[]>
+
   /**
    * Return a list of virtual card transactions for a given
    * user id.
@@ -93,11 +101,25 @@ export interface SudoVirtualCardsAdminClient {
    * @param request Input request object containing one of `userId`,
    * `last4`, `startDate`, `endDate`, `limit` and/or `nextToken`.
    *
-   * @returns Array of virtual card transactions.
+   * @returns {TransactionResponse} Array of virtual card transactions.
    */
   searchVirtualCardsTransactions: (
     request: SearchVirtualCardsTransactionsRequest,
   ) => Promise<TransactionResponse>
+
+  /**
+   * Retrieves a funding source with the given identifier and sets it
+   * to a state requiring refresh.
+   *
+   * @param fundingSourceId Identifier of the funding source to set to a
+   * state requiring refresh.
+   *
+   * @returns {FundingSource | undefined} The funding source in a REFRESH
+   * state or undefined if not funding source found.
+   */
+  setFundingSourceToRequireRefresh: (
+    fundingSourceId: string,
+  ) => Promise<FundingSource | undefined>
 }
 
 export class DefaultVirtualCardsAdminClient
@@ -121,7 +143,7 @@ export class DefaultVirtualCardsAdminClient
   ): Promise<GetPlaidSandboxDataResponse> {
     const input = {
       institutionId: request.institutionId,
-      username: request.username
+      username: request.username,
     }
     const result = await this.adminApiClient.getPlaidSandboxData(input)
     return {
@@ -191,5 +213,17 @@ export class DefaultVirtualCardsAdminClient
     )
 
     return TransactionResponseTransformer.toEntity(result)
+  }
+
+  public async setFundingSourceToRequireRefresh(
+    fundingSourceId: string,
+  ): Promise<FundingSource | undefined> {
+    const input = {
+      fundingSourceId,
+    }
+    const result = await this.adminApiClient.setFundingSourceToRequireRefresh(
+      input,
+    )
+    return FundingSourceTransformer.toEntity(result)
   }
 }

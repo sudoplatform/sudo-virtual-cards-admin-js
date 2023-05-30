@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { GetVirtualCardsActiveResponseTransformer } from './getVirtualCardsActiveResponseTransformer'
 import { GetVirtualCardsActiveResponse as GetVirtualCardsActiveResponseEntity } from '../../../virtualCardsAdmin/response/getVirtualCardsActiveResponse'
 import { GetVirtualCardsActiveResponse as GetVirtualCardsActiveResponseGraphQL } from '../../../gen/graphqlTypes'

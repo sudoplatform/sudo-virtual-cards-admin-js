@@ -22,6 +22,7 @@ import { DefaultSudoVirtualCardsAdminClientPrivateOptions } from '../private/def
 import { PlaidAccountMetadataTransformer } from '../data/transformers/plaidAccountMetadataTransformer'
 import {
   FundingSource,
+  FundingSourceState,
   GetPlaidSandboxDataResponse,
   GetVirtualCardsActiveResponse,
   PlaidAccountMetadata,
@@ -33,9 +34,6 @@ import { GetVirtualCardsActiveRequest } from './request/getVirtualCardsActiveReq
 import { GetVirtualCardsActiveResponseTransformer } from '../data/transformers/getVirtualCardsActiveResponseTransformer'
 import { ListFundingSourcesBySubRequest } from './request/listFundingSourcesBySubRequest'
 import { FundingSourceTransformer } from '../data/transformers/fundingSourceTransformer'
-import { defaultCreditCardFundingSourceGraphQL } from '../data/transformers/creditCardFundingSourceTransformer/creditCardFundingSourceTransformer.test'
-import { defaultBankAccountFundingSourceGraphQL } from '../data/transformers/bankAccountFundingSourceTransformer/bankAccountFundingSourceTransformer.test'
-import { defaultVirtualCardGraphQL } from '../data/transformers/virtualCardTransformer/virtualCardTransformer.test'
 import { VirtualCardTransformer } from '../data/transformers/virtualCardTransformer'
 import { ListVirtualCardsBySudoRequest } from './request/listVirtualCardsBySudoRequest'
 import { ListVirtualCardsBySubRequest } from './request/listVirtualCardsBySubRequest'
@@ -43,6 +41,7 @@ import { SearchVirtualCardsTransactionsRequest } from './request/searchVirtualCa
 import { defaultTransactionResponseGraphQL } from '../data/transformers/transactionResponseTransformer/transactionResponseTransformer.test'
 import { TransactionResponseTransformer } from '../data/transformers/transactionResponseTransformer'
 import { defaultPlaidAccountMetadataGraphQL } from '../data/transformers/plaidAccountMetadataTransformer/plaidAccountMetadataTransformer.test'
+import { GraphQLDataFactory } from '../util/data-factory/graphQl'
 
 describe('\nsudoVirtualCardsAdmin tests', () => {
   const apiKey = 'admin-api-key'
@@ -68,7 +67,7 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
 
     const adminClientRequest: GetPlaidSandboxDataRequest = {
       institutionId,
-      username
+      username,
     }
 
     const adminApiResult: GetPlaidSandboxDataResponse = {
@@ -140,14 +139,13 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
     }
 
     const adminApiResult: FundingSource[] = [
-      defaultCreditCardFundingSourceGraphQL,
-      defaultBankAccountFundingSourceGraphQL,
+      GraphQLDataFactory.creditCardFundingSource,
+      GraphQLDataFactory.bankAccountFundingSource,
     ]
 
     const adminClientResult = adminApiResult.map((fundingSource) =>
       FundingSourceTransformer.toEntity(fundingSource),
     )
-
     it('should return results', async () => {
       when(mockAdminApiClient.listFundingSourcesBySub(anything())).thenResolve(
         adminApiResult,
@@ -170,7 +168,7 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
       sub: 'mock-sub',
     }
 
-    const adminApiResult: VirtualCard[] = [defaultVirtualCardGraphQL]
+    const adminApiResult: VirtualCard[] = [GraphQLDataFactory.virtualCards]
 
     const adminClientResult = adminApiResult.map((virtualCard) =>
       VirtualCardTransformer.toEntity(virtualCard),
@@ -198,7 +196,7 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
       sudoId: 'mock-id',
     }
 
-    const adminApiResult: VirtualCard[] = [defaultVirtualCardGraphQL]
+    const adminApiResult: VirtualCard[] = [GraphQLDataFactory.virtualCards]
 
     const adminClientResult = adminApiResult.map((virtualCard) =>
       VirtualCardTransformer.toEntity(virtualCard),
@@ -255,6 +253,28 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
           adminClientRequest,
         ),
       ).resolves.toEqual(adminClientResult)
+    })
+  })
+
+  describe('setFundingSourceToRequireRefresh tests', () => {
+    const fundingSourceId = 'fundingSourceId'
+    const adminApiResult: FundingSource =
+      GraphQLDataFactory.bankAccountFundingSource
+    const adminClientResult = FundingSourceTransformer.toEntity(adminApiResult)
+
+    it('should return results', async () => {
+      when(
+        mockAdminApiClient.setFundingSourceToRequireRefresh(anything()),
+      ).thenResolve({ ...adminApiResult, state: FundingSourceState.Refresh })
+
+      await expect(
+        sudoVirtualCardsAdminClient.setFundingSourceToRequireRefresh(
+          fundingSourceId,
+        ),
+      ).resolves.toEqual({
+        ...adminClientResult,
+        state: FundingSourceState.Refresh,
+      })
     })
   })
 })

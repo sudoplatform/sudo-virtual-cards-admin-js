@@ -5,9 +5,9 @@
  */
 
 /**
- * Input containing information required to get sandbox data needed to complete bank account 
+ * Input containing information required to get sandbox data needed to complete bank account
  * funding source provisioning in a sandbox context from Plaid.
- * 
+ *
  * @property {string} institutionId Identifier of the sandbox institution to retrieve data.
  * @property {string} username The username linked to a custom sandbox user account.
  */

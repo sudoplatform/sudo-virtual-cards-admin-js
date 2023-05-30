@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /**
  * State of funding sources.
  *
@@ -14,4 +20,5 @@
 export enum FundingSourceState {
   Active = 'ACTIVE', // Funding source has completed setup and is active
   Inactive = 'INACTIVE', // Funding source is inactive
+  Refresh = 'REFRESH', // Funding source is active but may become inactive if user intervention does not occur
 }

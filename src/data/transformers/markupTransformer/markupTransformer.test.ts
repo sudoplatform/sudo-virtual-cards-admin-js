@@ -1,34 +1,23 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
 import { MarkupTransformer } from '../markupTransformer'
-import { Markup as MarkupEntity } from '../../../entities/markup'
-import { Markup as MarkupGraphQL } from '../../../gen/graphqlTypes'
-
-const percent = 1
-const flat = 2
-const minCharge = 0.5
-
-export const defaultMarkupEntity: MarkupEntity = {
-  percent,
-  flat,
-  minCharge,
-}
-
-export const defaultMarkupGraphQL: MarkupGraphQL = {
-  __typename: 'Markup',
-  percent: `${percent}`,
-  flat: `${flat}`,
-  minCharge: `${minCharge}`,
-}
 
 describe('MarkupTransformer tests', () => {
   it('should transform from entity to graphql', () => {
-    expect(MarkupTransformer.toGraphQL(defaultMarkupEntity)).toEqual(
-      defaultMarkupGraphQL,
+    expect(MarkupTransformer.toGraphQL(EntityDataFactory.markup)).toEqual(
+      GraphQLDataFactory.markup,
     )
   })
 
   it('should transform from graphql to entity', () => {
-    expect(MarkupTransformer.toEntity(defaultMarkupGraphQL)).toEqual(
-      defaultMarkupEntity,
+    expect(MarkupTransformer.toEntity(GraphQLDataFactory.markup)).toEqual(
+      EntityDataFactory.markup,
     )
   })
 })

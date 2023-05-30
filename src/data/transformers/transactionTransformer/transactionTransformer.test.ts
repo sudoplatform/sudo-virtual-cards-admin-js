@@ -1,66 +1,26 @@
-import { TransactionTransformer } from './transactionTransformer'
-import { Transaction as TransactionEntity } from '../../../entities/transaction'
-import { Transaction as TransactionGraphQL } from '../../../gen/graphqlTypes'
-import {
-  defaultMerchantEntity,
-  defaultMerchantGraphQL,
-} from '../merchantTransformer/merchantTransformer.test'
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { TransactionType as TransactionTypeEntity } from '../../../entities/transactionType'
 import { TransactionType as TransactionTypeGraphQL } from '../../../gen/graphqlTypes'
-import {
-  defaultTransactionDetailEntity,
-  defaulTransactionDetailGraphQL,
-} from '../transactionDetailTransformer/transactionDetailTransformer.test'
-
-const id = 'mock-id'
-const owner = 'mock-owner-id'
-const now = new Date()
-const declineReason = 'mock-decline-reason'
-const userCurrencyAmount = {
-  currency: 'AUD',
-  amount: 100,
-}
-
-export const defaultTransactionEntity: TransactionEntity = {
-  id,
-  owner,
-  createdAt: now,
-  updatedAt: now,
-  type: TransactionTypeEntity.Pending,
-  transactedAt: now,
-  billedAmount: userCurrencyAmount,
-  transactedAmount: userCurrencyAmount,
-  merchant: defaultMerchantEntity,
-  declineReason,
-  detail: [defaultTransactionDetailEntity],
-}
-
-export const defaultTransactionGraphQL: TransactionGraphQL = {
-  __typename: 'Transaction',
-  id,
-  owner,
-  createdAtEpochMs: now.getTime(),
-  updatedAtEpochMs: now.getTime(),
-  type: TransactionTypeGraphQL.Pending,
-  transactedAtEpochMs: now.getTime().toString(),
-  billedAmount: userCurrencyAmount,
-  transactedAmount: userCurrencyAmount,
-  merchant: defaultMerchantGraphQL,
-  declineReason,
-  detail: [defaulTransactionDetailGraphQL],
-}
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
+import { TransactionTransformer } from './transactionTransformer'
 
 describe('TransactionTransformer tests', () => {
   it('should transform from entity to graphql', () => {
-    expect(TransactionTransformer.toGraphQL(defaultTransactionEntity)).toEqual(
-      defaultTransactionGraphQL,
-    )
+    expect(
+      TransactionTransformer.toGraphQL(EntityDataFactory.transaction),
+    ).toEqual(GraphQLDataFactory.transaction)
   })
 
   it('should transform from graphql to entity', () => {
-    expect(TransactionTransformer.toEntity(defaultTransactionGraphQL)).toEqual(
-      defaultTransactionEntity,
-    )
+    expect(
+      TransactionTransformer.toEntity(GraphQLDataFactory.transaction),
+    ).toEqual(EntityDataFactory.transaction)
   })
 
   it.each`

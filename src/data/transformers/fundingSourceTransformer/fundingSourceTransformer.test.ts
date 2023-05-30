@@ -1,12 +1,12 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { ServiceError } from '@sudoplatform/sudo-common'
-import {
-  defaultBankAccountFundingSourceEntity,
-  defaultBankAccountFundingSourceGraphQL,
-} from '../bankAccountFundingSourceTransformer/bankAccountFundingSourceTransformer.test'
-import {
-  defaultCreditCardFundingSourceEntity,
-  defaultCreditCardFundingSourceGraphQL,
-} from '../creditCardFundingSourceTransformer/creditCardFundingSourceTransformer.test'
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
 import { FundingSourceTransformer } from './fundingSourceTransformer'
 
 describe('FundingSourceTransformer tests', () => {
@@ -44,17 +44,17 @@ describe('FundingSourceTransformer tests', () => {
     it('should transform from entity to graphql', () => {
       expect(
         FundingSourceTransformer.toGraphQL(
-          defaultBankAccountFundingSourceEntity,
+          EntityDataFactory.bankAccountFundingSource,
         ),
-      ).toEqual(defaultBankAccountFundingSourceGraphQL)
+      ).toEqual(GraphQLDataFactory.bankAccountFundingSource)
     })
 
     it('should transform from graphql to entity', () => {
       expect(
         FundingSourceTransformer.toEntity(
-          defaultBankAccountFundingSourceGraphQL,
+          GraphQLDataFactory.bankAccountFundingSource,
         ),
-      ).toEqual(defaultBankAccountFundingSourceEntity)
+      ).toEqual(EntityDataFactory.bankAccountFundingSource)
     })
   })
 
@@ -62,17 +62,17 @@ describe('FundingSourceTransformer tests', () => {
     it('should transform from entity to graphql', () => {
       expect(
         FundingSourceTransformer.toGraphQL(
-          defaultCreditCardFundingSourceEntity,
+          EntityDataFactory.creditCardFundingSource,
         ),
-      ).toEqual(defaultCreditCardFundingSourceGraphQL)
+      ).toEqual(GraphQLDataFactory.creditCardFundingSource)
     })
 
     it('should transform from graphql to entity', () => {
       expect(
         FundingSourceTransformer.toEntity(
-          defaultCreditCardFundingSourceGraphQL,
+          GraphQLDataFactory.creditCardFundingSource,
         ),
-      ).toEqual(defaultCreditCardFundingSourceEntity)
+      ).toEqual(EntityDataFactory.creditCardFundingSource)
     })
   })
 })

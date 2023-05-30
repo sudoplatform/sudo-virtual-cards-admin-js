@@ -1,39 +1,27 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
 import { TransactionConnectionTransformer } from '../transactionConnectionTransformer'
-import { TransactionConnection as TransactionConnectionEntity } from '../../../entities/transactionConnection'
-import { TransactionConnection as TransactionConnectionGraphQL } from '../../../gen/graphqlTypes'
-import {
-  defaultTransactionEntity,
-  defaultTransactionGraphQL,
-} from '../transactionTransformer/transactionTransformer.test'
-
-const nextToken = 'mock-token'
-
-export const defaultTransactionConnectionEntity: TransactionConnectionEntity = {
-  items: [defaultTransactionEntity],
-  nextToken,
-}
-
-export const defaultTransactionConnectionGraphQL: TransactionConnectionGraphQL =
-  {
-    __typename: 'TransactionConnection',
-    items: [defaultTransactionGraphQL],
-    nextToken,
-  }
 
 describe('TransactionConnectionTransformer tests', () => {
   it('should transform from entity to graphql', () => {
     expect(
       TransactionConnectionTransformer.toGraphQL(
-        defaultTransactionConnectionEntity,
+        EntityDataFactory.transactionConnection,
       ),
-    ).toEqual(defaultTransactionConnectionGraphQL)
+    ).toEqual(GraphQLDataFactory.transactionConnection)
   })
 
   it('should transform from graphql to entity', () => {
     expect(
       TransactionConnectionTransformer.toEntity(
-        defaultTransactionConnectionGraphQL,
+        GraphQLDataFactory.transactionConnection,
       ),
-    ).toEqual(defaultTransactionConnectionEntity)
+    ).toEqual(EntityDataFactory.transactionConnection)
   })
 })

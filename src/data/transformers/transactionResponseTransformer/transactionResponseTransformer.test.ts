@@ -1,38 +1,35 @@
-// id: graphql.id,
-//       transactionResponse: TransactionResponseTransformer.toEntity(graphql.transactionResponse),
-//       last4: graphql.last4,
-//       transactions: TransactionConnectionTransformer.toEntity(
-//         graphql.transactions,
-//       ),
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-import { TransactionResponseTransformer } from './transactionResponseTransformer'
+import { CardState as CardStateEntity } from '../../../entities'
 import { TransactionResponse as TransactionResponseEntity } from '../../../entities/transactionResponse'
-import { TransactionResponse as TransactionResponseGraphQL } from '../../../gen/graphqlTypes'
 import {
-  defaultCardStateEntity,
-  defaultCardStateGraphQL,
-} from '../cardStateTransformer/cardStateTransformer.test'
-import {
-  defaultTransactionConnectionEntity,
-  defaultTransactionConnectionGraphQL,
-} from '../transactionConnectionTransformer/transactionConnectionTransformer.test'
+  CardState as CardStateGraphQL,
+  TransactionResponse as TransactionResponseGraphQL,
+} from '../../../gen/graphqlTypes'
+import { EntityDataFactory } from '../../../util/data-factory/entity'
+import { GraphQLDataFactory } from '../../../util/data-factory/graphQl'
+import { TransactionResponseTransformer } from './transactionResponseTransformer'
 
 const id = 'mock-id'
 const last4 = '1234'
 
 export const defaultTransactionResponseEntity: TransactionResponseEntity = {
   id,
-  cardState: defaultCardStateEntity,
+  cardState: CardStateEntity.Issued,
   last4,
-  transactions: defaultTransactionConnectionEntity,
+  transactions: EntityDataFactory.transactionConnection,
 }
 
 export const defaultTransactionResponseGraphQL: TransactionResponseGraphQL = {
   __typename: 'TransactionResponse',
   id,
-  cardState: defaultCardStateGraphQL,
+  cardState: CardStateGraphQL.Issued,
   last4,
-  transactions: defaultTransactionConnectionGraphQL,
+  transactions: GraphQLDataFactory.transactionConnection,
 }
 
 describe('TransactionResponseTransformer tests', () => {

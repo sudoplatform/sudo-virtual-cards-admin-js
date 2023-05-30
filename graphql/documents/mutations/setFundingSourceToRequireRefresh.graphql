@@ -1,0 +1,7 @@
+mutation SetFundingSourceToRequireRefresh(
+    $input: SetFundingSourceToRequireRefreshRequest!
+) {
+    setFundingSourceToRequireRefresh(input: $input) {
+        ...AdminFundingSource
+    }
+}

@@ -5,6 +5,7 @@
  */
 
 import {
+  AppSyncError,
   ConfigurationManager,
   DefaultConfigurationManager,
   DefaultLogger,
@@ -13,7 +14,7 @@ import {
   UnknownGraphQLError,
 } from '@sudoplatform/sudo-common'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
-import { ApolloError, QueryOptions } from 'apollo-client'
+import { ApolloError, MutationOptions, QueryOptions } from 'apollo-client'
 import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
 import { AuthOptions } from 'aws-appsync-auth-link'
 import * as t from 'io-ts'
@@ -40,6 +41,9 @@ import {
   SearchVirtualCardsTransactionsDocument,
   SearchVirtualCardsTransactionsQuery,
   SearchVirtualCardsTransactionsRequest,
+  SetFundingSourceToRequireRefreshDocument,
+  SetFundingSourceToRequireRefreshMutation,
+  SetFundingSourceToRequireRefreshRequest,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
@@ -188,6 +192,18 @@ export class AdminApiClient {
     return data.searchVirtualCardsTransactions
   }
 
+  public async setFundingSourceToRequireRefresh(
+    input: SetFundingSourceToRequireRefreshRequest,
+  ): Promise<FundingSource> {
+    const data =
+      await this.performMutation<SetFundingSourceToRequireRefreshMutation>({
+        mutation: SetFundingSourceToRequireRefreshDocument,
+        variables: { input },
+        calleeName: this.setFundingSourceToRequireRefresh.name,
+      })
+    return data.setFundingSourceToRequireRefresh
+  }
+
   async performQuery<Q>({
     variables,
     fetchPolicy,
@@ -201,7 +217,7 @@ export class AdminApiClient {
         fetchPolicy,
         query,
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       const clientError = err as ApolloError
       this.log.debug('error received', { calleeName, clientError })
       const error = clientError.graphQLErrors?.[0]
@@ -215,6 +231,44 @@ export class AdminApiClient {
     const error = result.errors?.[0]
     if (error) {
       this.log.debug('error received', { error })
+      throw ErrorTransformer.toClientError(error)
+    }
+    if (result.data) {
+      return result.data
+    } else {
+      throw new FatalError(
+        `${calleeName ?? '<no callee>'} did not return any result`,
+      )
+    }
+  }
+
+  async performMutation<M>({
+    mutation,
+    variables,
+    calleeName,
+  }: Omit<MutationOptions<M>, 'fetchPolicy'> & {
+    calleeName?: string
+  }): Promise<M> {
+    let result
+    try {
+      result = await this.client.mutate<M>({
+        mutation,
+        variables,
+      })
+    } catch (err) {
+      const clientError = err as ApolloError
+      this.log.debug('error received', { calleeName, clientError })
+      const error = clientError.graphQLErrors?.[0]
+      if (error) {
+        this.log.debug('appSync mutation failed with error', { error })
+        throw ErrorTransformer.toClientError(error)
+      } else {
+        throw new UnknownGraphQLError(err as AppSyncError)
+      }
+    }
+    const error = result.errors?.[0]
+    if (error) {
+      this.log.debug('appSync mutation failed with error', { error })
       throw ErrorTransformer.toClientError(error)
     }
     if (result.data) {

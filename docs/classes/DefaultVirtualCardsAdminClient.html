@@ -24,7 +24,7 @@
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/SudoVirtualCardsAdminClient.html" class="tsd-signature-type" data-tsd-kind="Interface">SudoVirtualCardsAdminClient</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:103</li></ul></aside>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:125</li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -42,6 +42,7 @@
 <a href="DefaultVirtualCardsAdminClient.html#listVirtualCardsBySub" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sub</span></a>
 <a href="DefaultVirtualCardsAdminClient.html#listVirtualCardsBySudo" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sudo</span></a>
 <a href="DefaultVirtualCardsAdminClient.html#searchVirtualCardsTransactions" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</span></a>
+<a href="DefaultVirtualCardsAdminClient.html#setFundingSourceToRequireRefresh" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>set<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Require<wbr/>Refresh</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
@@ -59,7 +60,7 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> options: <a href="../interfaces/DefaultSudoVirtualCardsAdminClientOptions.html" class="tsd-signature-type" data-tsd-kind="Interface">DefaultSudoVirtualCardsAdminClientOptions</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DefaultVirtualCardsAdminClient.html" class="tsd-signature-type" data-tsd-kind="Class">DefaultVirtualCardsAdminClient</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:108</li></ul></aside></li></ul></section></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:130</li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getPlaidSandboxData" class="tsd-anchor"></a>
@@ -70,8 +71,8 @@
 <div class="tsd-comment tsd-typography"><p>Return a list of plaid account metadata objects matching
 the given institute id in the request.</p>
 
-<h3>Returns</h3><p>Response object containing public token and
-array of plaid account metadata objects.</p>
+<h3>Returns</h3><p>Response object containing
+public token and array of plaid account metadata objects.</p>
 
 <h3>Remarks</h3><p>This API is only available in sandbox environments.</p>
 </div>
@@ -86,7 +87,7 @@ array of plaid account metadata objects.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/GetPlaidSandboxDataResponse.html" class="tsd-signature-type" data-tsd-kind="Interface">GetPlaidSandboxDataResponse</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of SudoVirtualCardsAdminClient.getPlaidSandboxData</p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:119</li></ul></aside></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:141</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getVirtualCardsActive" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Virtual<wbr/>Cards<wbr/>Active</span><a href="#getVirtualCardsActive" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -95,8 +96,8 @@ array of plaid account metadata objects.</p>
 <div class="tsd-comment tsd-typography"><p>Return the number of virtual cards active in a given
 date range and timezone.</p>
 
-<h3>Returns</h3><p>Response object containing array of number of
-active cards.</p>
+<h3>Returns</h3><p>Response object containing
+array of number of active cards.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -109,7 +110,7 @@ active cards.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/GetVirtualCardsActiveResponse.html" class="tsd-signature-type" data-tsd-kind="Interface">GetVirtualCardsActiveResponse</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of SudoVirtualCardsAdminClient.getVirtualCardsActive</p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:135</li></ul></aside></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:157</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="listFundingSourcesBySub" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>list<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span><a href="#listFundingSourcesBySub" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -129,7 +130,7 @@ active cards.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/FundingSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">FundingSource</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of SudoVirtualCardsAdminClient.listFundingSourcesBySub</p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:147</li></ul></aside></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:169</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="listVirtualCardsBySub" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sub</span><a href="#listVirtualCardsBySub" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -149,7 +150,7 @@ active cards.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/VirtualCard.html" class="tsd-signature-type" data-tsd-kind="Interface">VirtualCard</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of SudoVirtualCardsAdminClient.listVirtualCardsBySub</p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:157</li></ul></aside></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:179</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="listVirtualCardsBySudo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sudo</span><a href="#listVirtualCardsBySudo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -170,7 +171,7 @@ property.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/VirtualCard.html" class="tsd-signature-type" data-tsd-kind="Interface">VirtualCard</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of SudoVirtualCardsAdminClient.listVirtualCardsBySudo</p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:167</li></ul></aside></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:189</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="searchVirtualCardsTransactions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</span><a href="#searchVirtualCardsTransactions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -192,7 +193,30 @@ user id.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/TransactionResponse.html" class="tsd-signature-type" data-tsd-kind="Interface">TransactionResponse</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of SudoVirtualCardsAdminClient.searchVirtualCardsTransactions</p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:177</li></ul></aside></li></ul></section></section></div>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:199</li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setFundingSourceToRequireRefresh" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>set<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Require<wbr/>Refresh</span><a href="#setFundingSourceToRequireRefresh" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="setFundingSourceToRequireRefresh.setFundingSourceToRequireRefresh-1">set<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Require<wbr/>Refresh<span class="tsd-signature-symbol">(</span>fundingSourceId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../types/FundingSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">FundingSource</a><span class="tsd-signature-symbol">&gt;</span><a href="#setFundingSourceToRequireRefresh.setFundingSourceToRequireRefresh-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Retrieves a funding source with the given identifier and sets it
+to a state requiring refresh.</p>
+
+<h3>Returns</h3><p>The funding source in a REFRESH
+state or undefined if not funding source found.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>fundingSourceId: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Identifier of the funding source to set to a
+state requiring refresh.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../types/FundingSource.html" class="tsd-signature-type" data-tsd-kind="Type alias">FundingSource</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<p>Implementation of SudoVirtualCardsAdminClient.setFundingSourceToRequireRefresh</p>
+<ul>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:218</li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -223,7 +247,8 @@ user id.</p>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="DefaultVirtualCardsAdminClient.html#listFundingSourcesBySub" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>list<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="DefaultVirtualCardsAdminClient.html#listVirtualCardsBySub" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sub</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="DefaultVirtualCardsAdminClient.html#listVirtualCardsBySudo" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sudo</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="DefaultVirtualCardsAdminClient.html#searchVirtualCardsTransactions" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</a></li></ul></li></ul></nav></div></div>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="DefaultVirtualCardsAdminClient.html#searchVirtualCardsTransactions" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="DefaultVirtualCardsAdminClient.html#setFundingSourceToRequireRefresh" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>set<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Require<wbr/>Refresh</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
 <div class="overlay"></div><script src="../assets/main.js"></script></body></html>

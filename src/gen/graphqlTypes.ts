@@ -21,31 +21,32 @@ export type Scalars = {
   Float: number
 }
 
-export type BankAccountFundingSource = CommonObject & {
-  __typename?: 'BankAccountFundingSource'
-  /** The signed authorization providing authority to transact on the bank account. */
-  authorization: SignedAuthorizationText
-  /** Bank account type */
-  bankAccountType: BankAccountType
-  /** See CommonObject.createdAtEpochMs */
-  createdAtEpochMs: Scalars['Float']
-  /** Currency that funding source is denominated in. */
-  currency: Scalars['String']
-  /** The unique fingerprint of the funding source. */
-  fingerprint: Scalars['ID']
-  /** See CommonObject.id */
-  id: Scalars['ID']
-  /** Last 4 digits of user's bank account number. */
-  last4: Scalars['String']
-  /** See CommonObject.owner */
-  owner: Scalars['ID']
-  /** State of funding source. */
-  state: FundingSourceState
-  /** See CommonObject.updatedAtEpochMs */
-  updatedAtEpochMs: Scalars['Float']
-  /** See CommonObject.version */
-  version: Scalars['Int']
-}
+export type BankAccountFundingSource = CommonFundingSource &
+  CommonObject & {
+    __typename?: 'BankAccountFundingSource'
+    /** The signed authorization providing authority to transact on the bank account. */
+    authorization: SignedAuthorizationText
+    /** Bank account type */
+    bankAccountType: BankAccountType
+    /** See CommonObject.createdAtEpochMs */
+    createdAtEpochMs: Scalars['Float']
+    /** Currency that funding source is denominated in. */
+    currency: Scalars['String']
+    /** The unique fingerprint of the funding source. */
+    fingerprint: Scalars['ID']
+    /** See CommonObject.id */
+    id: Scalars['ID']
+    /** Last 4 digits of user's bank account number. */
+    last4: Scalars['String']
+    /** See CommonObject.owner */
+    owner: Scalars['ID']
+    /** State of funding source. */
+    state: FundingSourceState
+    /** See CommonObject.updatedAtEpochMs */
+    updatedAtEpochMs: Scalars['Float']
+    /** See CommonObject.version */
+    version: Scalars['Int']
+  }
 
 export enum BankAccountType {
   Checking = 'CHECKING',
@@ -67,6 +68,19 @@ export enum CardType {
   Prepaid = 'PREPAID',
 }
 
+/** Funding sources (will implement CommonObject when interface extension is supported) */
+export type CommonFundingSource = {
+  /**
+   * Billing currency of the funding source as 3 character ISO
+   * currency code.
+   */
+  currency: Scalars['String']
+  /** Fingerprint of the funding source. Used to detect duplicates. */
+  fingerprint: Scalars['ID']
+  /** State of funding source */
+  state: FundingSourceState
+}
+
 export type CommonObject = {
   /**
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
@@ -86,31 +100,32 @@ export type CommonObject = {
   version: Scalars['Int']
 }
 
-export type CreditCardFundingSource = CommonObject & {
-  __typename?: 'CreditCardFundingSource'
-  /** Type of card */
-  cardType: CardType
-  /** See CommonObject.createdAtEpochMs */
-  createdAtEpochMs: Scalars['Float']
-  /** Currency that funding source is denominated in. */
-  currency: Scalars['String']
-  /** The unique fingerprint of the funding source. */
-  fingerprint: Scalars['ID']
-  /** See CommonObject.id */
-  id: Scalars['ID']
-  /** Last 4 digits of user's credit card */
-  last4: Scalars['String']
-  /** Card network of card */
-  network: CreditCardNetwork
-  /** See CommonObject.owner */
-  owner: Scalars['ID']
-  /** State of funding source. */
-  state: FundingSourceState
-  /** See CommonObject.updatedAtEpochMs */
-  updatedAtEpochMs: Scalars['Float']
-  /** See CommonObject.version */
-  version: Scalars['Int']
-}
+export type CreditCardFundingSource = CommonFundingSource &
+  CommonObject & {
+    __typename?: 'CreditCardFundingSource'
+    /** Type of card */
+    cardType: CardType
+    /** See CommonObject.createdAtEpochMs */
+    createdAtEpochMs: Scalars['Float']
+    /** See CommonFundingSource.currency */
+    currency: Scalars['String']
+    /** See CommonFundingSource.fingerprint */
+    fingerprint: Scalars['ID']
+    /** See CommonObject.id */
+    id: Scalars['ID']
+    /** Last 4 digits of user's credit card */
+    last4: Scalars['String']
+    /** Card network of card */
+    network: CreditCardNetwork
+    /** See CommonObject.owner */
+    owner: Scalars['ID']
+    /** See CommonFundingSource.state */
+    state: FundingSourceState
+    /** See CommonObject.updatedAtEpochMs */
+    updatedAtEpochMs: Scalars['Float']
+    /** See CommonObject.version */
+    version: Scalars['Int']
+  }
 
 export enum CreditCardNetwork {
   Amex = 'AMEX',
@@ -131,10 +146,15 @@ export type FundingSource = BankAccountFundingSource | CreditCardFundingSource
  *
  * INACTIVE: Funding source is inactive. Is not usable for funding of new transactions
  * but may receive refunds or additional charges on partially complete transactions.
+ *
+ * REFRESH: Funding source requires a provider-specific refresh. Is currently active
+ * (and obeys other status associated with ACTIVE) but may be moved to INACTIVE if user
+ * intervention does not occur.
  */
 export enum FundingSourceState {
   Active = 'ACTIVE',
   Inactive = 'INACTIVE',
+  Refresh = 'REFRESH',
 }
 
 /**
@@ -259,6 +279,15 @@ export type Merchant = {
   state?: Maybe<Scalars['String']>
 }
 
+export type Mutation = {
+  __typename?: 'Mutation'
+  setFundingSourceToRequireRefresh: FundingSource
+}
+
+export type MutationSetFundingSourceToRequireRefreshArgs = {
+  input: SetFundingSourceToRequireRefreshRequest
+}
+
 /** Owner Id derived from the owner proof. */
 export type Owner = {
   __typename?: 'Owner'
@@ -330,6 +359,14 @@ export type SearchVirtualCardsTransactionsRequest = {
   startDate: Scalars['String']
   /** ID of the user that owns the transactions. */
   userId: Scalars['ID']
+}
+
+/**
+ * Request to manually set a funding source specified by its identifier to a REFRESH
+ * state.
+ */
+export type SetFundingSourceToRequireRefreshRequest = {
+  fundingSourceId: Scalars['String']
 }
 
 export type SignedAuthorizationText = {
@@ -518,6 +555,45 @@ export type VirtualCard = CommonObject & {
   version: Scalars['Int']
 }
 
+export type CreditCardFundingSourceFragment = {
+  __typename?: 'CreditCardFundingSource'
+  id: string
+  owner: string
+  version: number
+  createdAtEpochMs: number
+  updatedAtEpochMs: number
+  state: FundingSourceState
+  currency: string
+  fingerprint: string
+  last4: string
+  cardType: CardType
+  network: CreditCardNetwork
+}
+
+export type BankAccountFundingSourceFragment = {
+  __typename?: 'BankAccountFundingSource'
+  id: string
+  owner: string
+  version: number
+  createdAtEpochMs: number
+  updatedAtEpochMs: number
+  state: FundingSourceState
+  currency: string
+  fingerprint: string
+  last4: string
+  bankAccountType: BankAccountType
+  authorization: {
+    __typename?: 'SignedAuthorizationText'
+    content: string
+    contentType: string
+    language: string
+    data: string
+    signature: string
+    algorithm: string
+    keyId: string
+  }
+}
+
 type AdminFundingSource_BankAccountFundingSource_Fragment = {
   __typename?: 'BankAccountFundingSource'
   id: string
@@ -686,6 +762,52 @@ export type VirtualCardWithoutSealedAttributesFragment = {
   cancelledAtEpochMs?: number | null
   last4: string
   owners: Array<{ __typename?: 'Owner'; id: string; issuer: string }>
+}
+
+export type SetFundingSourceToRequireRefreshMutationVariables = Exact<{
+  input: SetFundingSourceToRequireRefreshRequest
+}>
+
+export type SetFundingSourceToRequireRefreshMutation = {
+  __typename?: 'Mutation'
+  setFundingSourceToRequireRefresh:
+    | {
+        __typename?: 'BankAccountFundingSource'
+        id: string
+        owner: string
+        version: number
+        createdAtEpochMs: number
+        updatedAtEpochMs: number
+        state: FundingSourceState
+        currency: string
+        fingerprint: string
+        last4: string
+        bankAccountType: BankAccountType
+        authorization: {
+          __typename?: 'SignedAuthorizationText'
+          content: string
+          contentType: string
+          language: string
+          data: string
+          signature: string
+          algorithm: string
+          keyId: string
+        }
+      }
+    | {
+        __typename?: 'CreditCardFundingSource'
+        id: string
+        owner: string
+        version: number
+        createdAtEpochMs: number
+        updatedAtEpochMs: number
+        state: FundingSourceState
+        currency: string
+        fingerprint: string
+        last4: string
+        cardType: CardType
+        network: CreditCardNetwork
+      }
 }
 
 export type GetPlaidSandboxDataQueryVariables = Exact<{
@@ -893,6 +1015,79 @@ export type SearchVirtualCardsTransactionsQuery = {
   }
 }
 
+export const CreditCardFundingSourceFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'network' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreditCardFundingSourceFragment, unknown>
+export const BankAccountFundingSourceFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'bankAccountType' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'authorization' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'data' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<BankAccountFundingSourceFragment, unknown>
 export const AdminFundingSourceFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -915,23 +1110,10 @@ export const AdminFundingSourceFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                 {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'createdAtEpochMs' },
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'CreditCardFundingSource' },
                 },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'updatedAtEpochMs' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'network' } },
               ],
             },
           },
@@ -944,56 +1126,73 @@ export const AdminFundingSourceFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                 {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'createdAtEpochMs' },
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'BankAccountFundingSource' },
                 },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'updatedAtEpochMs' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'bankAccountType' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'authorization' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'content' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'contentType' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'language' },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'data' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'signature' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'algorithm' },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
-                    ],
-                  },
-                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'network' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'bankAccountType' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'authorization' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'data' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
               ],
             },
           },
@@ -1430,6 +1629,174 @@ export const VirtualCardWithoutSealedAttributesFragmentDoc = {
   VirtualCardWithoutSealedAttributesFragment,
   unknown
 >
+export const SetFundingSourceToRequireRefreshDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'SetFundingSourceToRequireRefresh' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'input' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: {
+                kind: 'Name',
+                value: 'SetFundingSourceToRequireRefreshRequest',
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'setFundingSourceToRequireRefresh' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'input' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'AdminFundingSource' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'network' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'bankAccountType' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'authorization' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'data' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AdminFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'FundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'InlineFragment',
+            typeCondition: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CreditCardFundingSource' },
+            },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'CreditCardFundingSource' },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'InlineFragment',
+            typeCondition: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'BankAccountFundingSource' },
+            },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'BankAccountFundingSource' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  SetFundingSourceToRequireRefreshMutation,
+  SetFundingSourceToRequireRefreshMutationVariables
+>
 export const GetPlaidSandboxDataDocument = {
   kind: 'Document',
   definitions: [
@@ -1612,6 +1979,69 @@ export const ListFundingSourcesBySubDocument = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'CreditCardFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'network' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'BankAccountFundingSource' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'bankAccountType' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'authorization' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'contentType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'data' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AdminFundingSource' },
       typeCondition: {
         kind: 'NamedType',
@@ -1629,23 +2059,10 @@ export const ListFundingSourcesBySubDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                 {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'createdAtEpochMs' },
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'CreditCardFundingSource' },
                 },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'updatedAtEpochMs' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'network' } },
               ],
             },
           },
@@ -1658,55 +2075,9 @@ export const ListFundingSourcesBySubDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                 {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'createdAtEpochMs' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'updatedAtEpochMs' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'bankAccountType' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'authorization' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'content' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'contentType' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'language' },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'data' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'signature' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'algorithm' },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
-                    ],
-                  },
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'BankAccountFundingSource' },
                 },
               ],
             },

@@ -30,23 +30,41 @@ enum CreditCardNetwork {
 }
 
 """
-Owner Id derived from the owner proof.
-"""
-type Owner @aws_iam @aws_api_key @aws_cognito_user_pools {
-  id: String!
-  issuer: String!
-}
-
-"""
 ACTIVE: Funding source is completely set up and in a state suitable
 for funding virtual card transactions
 
 INACTIVE: Funding source is inactive. Is not usable for funding of new transactions
 but may receive refunds or additional charges on partially complete transactions.
+
+REFRESH: Funding source requires a provider-specific refresh. Is currently active
+(and obeys other status associated with ACTIVE) but may be moved to INACTIVE if user
+intervention does not occur.
 """
 enum FundingSourceState {
   ACTIVE
   INACTIVE
+  REFRESH
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+  PREPAID
+  OTHER
+}
+
+enum BankAccountType {
+  SAVINGS
+  CHECKING
+  OTHER
+}
+
+"""
+Owner Id derived from the owner proof.
+"""
+type Owner {
+  id: String!
+  issuer: String!
 }
 
 interface CommonObject {
@@ -78,23 +96,28 @@ interface CommonObject {
   updatedAtEpochMs: Float!
 }
 
-enum CardType {
-  CREDIT
-  DEBIT
-  PREPAID
-  OTHER
+"""
+Funding sources (will implement CommonObject when interface extension is supported)
+"""
+interface CommonFundingSource {
+  """
+  State of funding source
+  """
+  state: FundingSourceState!
+
+  """
+  Billing currency of the funding source as 3 character ISO
+  currency code.
+  """
+  currency: String!
+
+  """
+  Fingerprint of the funding source. Used to detect duplicates.
+  """
+  fingerprint: ID!
 }
 
-enum BankAccountType {
-  SAVINGS
-  CHECKING
-  OTHER
-}
-
-type CreditCardFundingSource implements CommonObject
-  @aws_cognito_user_pools
-  @aws_api_key
-  @aws_iam {
+type CreditCardFundingSource implements CommonObject & CommonFundingSource {
   """
   See CommonObject.id
   """
@@ -121,17 +144,17 @@ type CreditCardFundingSource implements CommonObject
   updatedAtEpochMs: Float!
 
   """
-  State of funding source.
+  See CommonFundingSource.state
   """
   state: FundingSourceState!
 
   """
-  Currency that funding source is denominated in.
+  See CommonFundingSource.currency
   """
   currency: String!
 
   """
-  The unique fingerprint of the funding source.
+  See CommonFundingSource.fingerprint
   """
   fingerprint: ID!
 
@@ -151,7 +174,7 @@ type CreditCardFundingSource implements CommonObject
   network: CreditCardNetwork!
 }
 
-type SignedAuthorizationText @aws_cognito_user_pools @aws_api_key @aws_iam {
+type SignedAuthorizationText {
   """
   Data that is signed. This is a serialised JSON document of the form:
   {
@@ -194,10 +217,7 @@ type SignedAuthorizationText @aws_cognito_user_pools @aws_api_key @aws_iam {
   language: String!
 }
 
-type BankAccountFundingSource implements CommonObject
-  @aws_cognito_user_pools
-  @aws_api_key
-  @aws_iam {
+type BankAccountFundingSource implements CommonObject & CommonFundingSource {
   """
   See CommonObject.id
   """
@@ -259,10 +279,7 @@ union FundingSource = CreditCardFundingSource | BankAccountFundingSource
 """
 Admin representation of a virtual card.
 """
-type VirtualCard implements CommonObject
-  @aws_iam
-  @aws_api_key
-  @aws_cognito_user_pools {
+type VirtualCard implements CommonObject {
   """
   ID of the object
   """
@@ -346,7 +363,7 @@ type VirtualCard implements CommonObject
   last4: String!
 }
 
-type UserCurrencyAmount @aws_cognito_user_pools {
+type UserCurrencyAmount {
   """
   Currency of currency amount.
   """
@@ -361,7 +378,7 @@ type UserCurrencyAmount @aws_cognito_user_pools {
 """
 Representation of a markup formula.
 """
-type Markup @aws_cognito_user_pools {
+type Markup {
   """
   Floating point percentage amount applied in calculating
   total markup multiple by 1000. For example: 2990 for 2.99%.
@@ -387,7 +404,7 @@ type Markup @aws_cognito_user_pools {
   minCharge: String
 }
 
-type Merchant @aws_cognito_user_pools {
+type Merchant {
   """
   ID of the merchant that a transaction was against.
   """
@@ -423,7 +440,7 @@ type Merchant @aws_cognito_user_pools {
 Transaction detail. Depending on transaction type will detail
 things like fees, real credit card transaction details etc.
 """
-type TransactionDetail @aws_cognito_user_pools {
+type TransactionDetail {
   """
   Amount merchant charged virtual card.
   """
@@ -460,7 +477,7 @@ type TransactionDetail @aws_cognito_user_pools {
   fundingSourceNetwork: CreditCardNetwork!
 }
 
-type Transaction @aws_cognito_user_pools {
+type Transaction {
   """
   ID of the object.
   """
@@ -524,12 +541,12 @@ type Transaction @aws_cognito_user_pools {
   detail: [TransactionDetail!]
 }
 
-type TransactionConnection @aws_cognito_user_pools {
+type TransactionConnection {
   items: [Transaction!]!
   nextToken: String
 }
 
-type TransactionResponse @aws_cognito_user_pools @aws_api_key {
+type TransactionResponse {
   """
   ID of card data is returned for
   """
@@ -620,7 +637,7 @@ input GetVirtualCardsActiveRequest {
 Response containing daily totals of active and cancelled virtual
 cards.
 """
-type GetVirtualCardsActiveResponse @aws_cognito_user_pools @aws_iam {
+type GetVirtualCardsActiveResponse {
   """
   ISO8601 representation of rounded start date in time zone specified in request.
   """

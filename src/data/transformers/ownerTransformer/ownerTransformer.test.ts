@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { OwnerTransformer } from '../ownerTransformer'
 import { Owner as OwnerEntity } from '../../../entities/owner'
 import { Owner as OwnerGraphQL } from '../../../gen/graphqlTypes'

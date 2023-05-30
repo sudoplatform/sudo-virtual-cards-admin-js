@@ -24,9 +24,6 @@ import {
   verify,
   when,
 } from 'ts-mockito'
-import { defaultBankAccountFundingSourceGraphQL } from '../data/transformers/bankAccountFundingSourceTransformer/bankAccountFundingSourceTransformer.test'
-import { defaultTransactionConnectionGraphQL } from '../data/transformers/transactionConnectionTransformer/transactionConnectionTransformer.test'
-import { defaultVirtualCardGraphQL } from '../data/transformers/virtualCardTransformer/virtualCardTransformer.test'
 import {
   CardState,
   FundingSource,
@@ -50,11 +47,15 @@ import {
   SearchVirtualCardsTransactionsDocument,
   SearchVirtualCardsTransactionsQuery,
   SearchVirtualCardsTransactionsRequest,
+  SetFundingSourceToRequireRefreshDocument,
+  SetFundingSourceToRequireRefreshMutation,
+  SetFundingSourceToRequireRefreshRequest,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
 import { CardNotFoundError, UnknownTimeZoneError } from '../global/error'
 import { AdminApiClient, AdminConsoleProject } from './adminApiClient'
+import { GraphQLDataFactory } from '../util/data-factory/graphQl'
 
 describe('\nadminApiClient tests', () => {
   const adminApiKey = 'admin-api-key'
@@ -294,7 +295,9 @@ describe('\nadminApiClient tests', () => {
       sub: 'mock-sub',
     }
 
-    const result: FundingSource[] = [defaultBankAccountFundingSourceGraphQL]
+    const result: FundingSource[] = [
+      GraphQLDataFactory.bankAccountFundingSource,
+    ]
 
     it('should return results', async () => {
       when(
@@ -373,7 +376,7 @@ describe('\nadminApiClient tests', () => {
       sub,
     }
 
-    const result: VirtualCard[] = [defaultVirtualCardGraphQL]
+    const result: VirtualCard[] = [GraphQLDataFactory.virtualCards]
 
     it('should return results', async () => {
       when(
@@ -452,7 +455,7 @@ describe('\nadminApiClient tests', () => {
       sudoId,
     }
 
-    const result: VirtualCard[] = [defaultVirtualCardGraphQL]
+    const result: VirtualCard[] = [GraphQLDataFactory.virtualCards]
 
     it('should return results', async () => {
       when(
@@ -541,7 +544,7 @@ describe('\nadminApiClient tests', () => {
       cardState: CardState.Closed,
       id,
       last4,
-      transactions: defaultTransactionConnectionGraphQL,
+      transactions: GraphQLDataFactory.transactionConnection,
     }
 
     it('should return results', async () => {
@@ -633,6 +636,81 @@ describe('\nadminApiClient tests', () => {
       await expect(
         adminApiClient.searchVirtualCardsTransactions(request),
       ).rejects.toEqual(new CardNotFoundError())
+    })
+  })
+
+  describe('setFundingSourceToRequireRefresh tests', () => {
+    const request: SetFundingSourceToRequireRefreshRequest = {
+      fundingSourceId: 'mock-id',
+    }
+
+    const result: FundingSource = GraphQLDataFactory.bankAccountFundingSource
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
+      ).thenResolve({
+        data: {
+          setFundingSourceToRequireRefresh: result,
+        },
+      })
+
+      await expect(
+        adminApiClient.setFundingSourceToRequireRefresh(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: SetFundingSourceToRequireRefreshDocument,
+        variables: { input: request },
+      })
+
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `FatalError` when no result data is returned', async () => {
+      const error = new FatalError(
+        'setFundingSourceToRequireRefresh did not return any result.',
+      )
+
+      when(
+        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.setFundingSourceToRequireRefresh(request),
+      ).rejects.toEqual(
+        new FatalError(
+          'setFundingSourceToRequireRefresh did not return any result.',
+        ),
+      )
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+
+      when(
+        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.setFundingSourceToRequireRefresh(anything()),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+
+    it('should throw `IllegalArgumentError` when invalid argument received', async () => {
+      const invalidRequest = {
+        invalid: 'argument',
+      } as unknown as SetFundingSourceToRequireRefreshRequest
+      const error = new IllegalArgumentError()
+
+      when(
+        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.setFundingSourceToRequireRefresh(invalidRequest),
+      ).rejects.toThrow(error)
     })
   })
 })

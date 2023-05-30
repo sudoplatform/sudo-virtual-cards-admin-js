@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CardState as CardStateGraphQL } from '../../../gen/graphqlTypes'
 import { CardState as CardStateEntity } from '../../../entities/cardState'
 

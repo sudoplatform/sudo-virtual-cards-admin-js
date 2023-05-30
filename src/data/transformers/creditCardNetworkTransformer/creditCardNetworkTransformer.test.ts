@@ -1,10 +1,12 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CreditCardNetworkTransformer } from './creditCardNetworkTransformer'
 import { CreditCardNetwork as CreditCardNetworkEntity } from '../../../entities/creditCardNetwork'
 import { CreditCardNetwork as CreditCardNetworkGraphQL } from '../../../gen/graphqlTypes'
-
-export const defaultCreditCardNetworkEntity = CreditCardNetworkEntity.MasterCard
-export const defaultCreditCardNetworkGraphQL =
-  CreditCardNetworkGraphQL.Mastercard
 
 describe('CardStateTransformer tests', () => {
   it.each`

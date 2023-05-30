@@ -13,12 +13,13 @@ module.exports = {
       plugins: ['@typescript-eslint', 'import', 'prettier', 'tree-shaking'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
-        project: './tsconfig.test.json',
+        project: './tsconfig.json',
       },
       extends: [
         'plugin:@typescript-eslint/recommended',
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
         'prettier',
+        'plugin:prettier/recommended',
       ],
       rules: {
         // Disallow `any`.  (This is overridden for test files, below)
@@ -54,7 +55,7 @@ module.exports = {
             ignoreStatic: true,
           },
         ],
-        'tree-shaking/no-side-effects-in-initialization': 2,
+        'tree-shaking/no-side-effects-in-initialization': 'error',
       },
     },
     {
@@ -64,7 +65,8 @@ module.exports = {
       },
     },
     {
-      files: ['src/**/*.ts'],
+      files: ['**/*.test.ts', 'test/**/*.ts', 'jest.setup.ts'],
+      plugins: ['@typescript-eslint', 'jest'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
         project: './tsconfig.test.json',
@@ -73,18 +75,24 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
         'prettier',
+        'plugin:prettier/recommended',
       ],
       rules: {
         '@typescript-eslint/no-namespace': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
-        '@typescript-eslint/no-unsafe-argument': 'off',
         '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
         '@typescript-eslint/restrict-plus-operands': 'off',
         '@typescript-eslint/restrict-template-expressions': 'off',
         '@typescript-eslint/unbound-method': 'off',
+        'jest/no-disabled-tests': 'warn',
+        'jest/no-focused-tests': 'error',
+        'jest/no-identical-title': 'error',
+        'jest/prefer-to-have-length': 'warn',
+        'jest/valid-expect': 'error',
       },
     },
   ],

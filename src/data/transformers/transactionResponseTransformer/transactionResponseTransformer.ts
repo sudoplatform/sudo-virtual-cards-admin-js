@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { TransactionResponse as TransactionResponseGraphQL } from '../../../gen/graphqlTypes'
 import { TransactionResponse as TransactionResponseEntity } from '../../../entities/transactionResponse'
 import { CardStateTransformer } from '../cardStateTransformer'

@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CreditCardNetwork } from './creditCardNetwork'
 import { Markup } from './markup'
 import { UserCurrencyAmount } from './userCurrencyAmount'
