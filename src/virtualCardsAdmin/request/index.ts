@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { GetPlaidSandboxDataRequest } from './getPlaidSandboxDataRequest'
 export { GetVirtualCardsActiveRequest } from './getVirtualCardsActiveRequest'
 export { ListFundingSourcesBySubRequest } from './listFundingSourcesBySubRequest'
 export { ListVirtualCardsBySubRequest } from './listVirtualCardsBySubRequest'

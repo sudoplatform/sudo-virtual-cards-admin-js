@@ -19,17 +19,12 @@ import {
 } from './virtualCardsAdminClient'
 import { AdminApiClient } from '../adminApiClient'
 import { DefaultSudoVirtualCardsAdminClientPrivateOptions } from '../private/defaultSudoVirtualCardsAdminClientPrivateOptions'
-import { PlaidAccountMetadataTransformer } from '../data/transformers/plaidAccountMetadataTransformer'
 import {
   FundingSource,
-  FundingSourceState,
-  GetPlaidSandboxDataResponse,
   GetVirtualCardsActiveResponse,
-  PlaidAccountMetadata,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
-import { GetPlaidSandboxDataRequest } from './request/getPlaidSandboxDataRequest'
 import { GetVirtualCardsActiveRequest } from './request/getVirtualCardsActiveRequest'
 import { GetVirtualCardsActiveResponseTransformer } from '../data/transformers/getVirtualCardsActiveResponseTransformer'
 import { ListFundingSourcesBySubRequest } from './request/listFundingSourcesBySubRequest'
@@ -40,7 +35,6 @@ import { ListVirtualCardsBySubRequest } from './request/listVirtualCardsBySubReq
 import { SearchVirtualCardsTransactionsRequest } from './request/searchVirtualCardsTransactionsRequest'
 import { defaultTransactionResponseGraphQL } from '../data/transformers/transactionResponseTransformer/transactionResponseTransformer.test'
 import { TransactionResponseTransformer } from '../data/transformers/transactionResponseTransformer'
-import { defaultPlaidAccountMetadataGraphQL } from '../data/transformers/plaidAccountMetadataTransformer/plaidAccountMetadataTransformer.test'
 import { GraphQLDataFactory } from '../util/data-factory/graphQl'
 
 describe('\nsudoVirtualCardsAdmin tests', () => {
@@ -58,48 +52,6 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
       apiKey,
       privateOptions,
     )
-  })
-
-  describe('getPlaidSandboxData', () => {
-    const publicToken = 'mock-public-token'
-    const institutionId = 'mock-institution-id'
-    const username = 'mock-username'
-
-    const adminClientRequest: GetPlaidSandboxDataRequest = {
-      institutionId,
-      username,
-    }
-
-    const adminApiResult: GetPlaidSandboxDataResponse = {
-      publicToken,
-      accountMetadata: [defaultPlaidAccountMetadataGraphQL],
-    }
-
-    const adminClientResult = {
-      publicToken,
-      accountMetadata: adminApiResult.accountMetadata.map(
-        (account) =>
-          PlaidAccountMetadataTransformer.toEntity(
-            account,
-          ) as PlaidAccountMetadata,
-      ),
-    }
-
-    it('should return results', async () => {
-      when(mockAdminApiClient.getPlaidSandboxData(anything())).thenResolve(
-        adminApiResult,
-      )
-
-      await expect(
-        sudoVirtualCardsAdminClient.getPlaidSandboxData(adminClientRequest),
-      ).resolves.toEqual(adminClientResult)
-
-      const [actualInput] = capture(
-        mockAdminApiClient.getPlaidSandboxData,
-      ).first()
-      expect(actualInput).toEqual(adminClientRequest)
-      verify(mockAdminApiClient.getPlaidSandboxData(anything())).once()
-    })
   })
 
   describe('getVirtualCardsActive tests', () => {
@@ -253,28 +205,6 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
           adminClientRequest,
         ),
       ).resolves.toEqual(adminClientResult)
-    })
-  })
-
-  describe('setFundingSourceToRequireRefresh tests', () => {
-    const fundingSourceId = 'fundingSourceId'
-    const adminApiResult: FundingSource =
-      GraphQLDataFactory.bankAccountFundingSource
-    const adminClientResult = FundingSourceTransformer.toEntity(adminApiResult)
-
-    it('should return results', async () => {
-      when(
-        mockAdminApiClient.setFundingSourceToRequireRefresh(anything()),
-      ).thenResolve({ ...adminApiResult, state: FundingSourceState.Refresh })
-
-      await expect(
-        sudoVirtualCardsAdminClient.setFundingSourceToRequireRefresh(
-          fundingSourceId,
-        ),
-      ).resolves.toEqual({
-        ...adminClientResult,
-        state: FundingSourceState.Refresh,
-      })
     })
   })
 })

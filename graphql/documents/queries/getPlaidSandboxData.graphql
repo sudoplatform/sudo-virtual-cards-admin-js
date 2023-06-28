@@ -1,9 +1,0 @@
-query GetPlaidSandboxData($input: GetPlaidSandboxDataRequest!) {
-  getPlaidSandboxData(input: $input) {
-    accountMetadata {
-      accountId
-      subtype
-    }
-    publicToken
-  }
-}

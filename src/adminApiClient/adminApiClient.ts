@@ -21,10 +21,6 @@ import * as t from 'io-ts'
 import { ErrorTransformer } from '../data/transformers/errorTransformer/errorTransformer'
 import {
   FundingSource,
-  GetPlaidSandboxDataDocument,
-  GetPlaidSandboxDataQuery,
-  GetPlaidSandboxDataRequest,
-  GetPlaidSandboxDataResponse,
   GetVirtualCardsActiveDocument,
   GetVirtualCardsActiveQuery,
   GetVirtualCardsActiveRequest,
@@ -41,9 +37,6 @@ import {
   SearchVirtualCardsTransactionsDocument,
   SearchVirtualCardsTransactionsQuery,
   SearchVirtualCardsTransactionsRequest,
-  SetFundingSourceToRequireRefreshDocument,
-  SetFundingSourceToRequireRefreshMutation,
-  SetFundingSourceToRequireRefreshRequest,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
@@ -126,17 +119,6 @@ export class AdminApiClient {
       })
   }
 
-  public async getPlaidSandboxData(
-    input: GetPlaidSandboxDataRequest,
-  ): Promise<GetPlaidSandboxDataResponse> {
-    const data = await this.performQuery<GetPlaidSandboxDataQuery>({
-      query: GetPlaidSandboxDataDocument,
-      variables: { input },
-      fetchPolicy: queryFetchPolicy,
-    })
-    return data.getPlaidSandboxData
-  }
-
   public async getVirtualCardsActive(
     input: GetVirtualCardsActiveRequest,
   ): Promise<GetVirtualCardsActiveResponse> {
@@ -190,18 +172,6 @@ export class AdminApiClient {
       fetchPolicy: queryFetchPolicy,
     })
     return data.searchVirtualCardsTransactions
-  }
-
-  public async setFundingSourceToRequireRefresh(
-    input: SetFundingSourceToRequireRefreshRequest,
-  ): Promise<FundingSource> {
-    const data =
-      await this.performMutation<SetFundingSourceToRequireRefreshMutation>({
-        mutation: SetFundingSourceToRequireRefreshDocument,
-        variables: { input },
-        calleeName: this.setFundingSourceToRequireRefresh.name,
-      })
-    return data.setFundingSourceToRequireRefresh
   }
 
   async performQuery<Q>({

@@ -12,13 +12,22 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]: Maybe<T[SubKey]>
 }
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = { [_ in K]?: never }
+export type Incremental<T> =
+  | T
+  | {
+      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never
+    }
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string
-  String: string
-  Boolean: boolean
-  Int: number
-  Float: number
+  ID: { input: string; output: string }
+  String: { input: string; output: string }
+  Boolean: { input: boolean; output: boolean }
+  Int: { input: number; output: number }
+  Float: { input: number; output: number }
 }
 
 export type BankAccountFundingSource = CommonFundingSource &
@@ -29,23 +38,23 @@ export type BankAccountFundingSource = CommonFundingSource &
     /** Bank account type */
     bankAccountType: BankAccountType
     /** See CommonObject.createdAtEpochMs */
-    createdAtEpochMs: Scalars['Float']
+    createdAtEpochMs: Scalars['Float']['output']
     /** Currency that funding source is denominated in. */
-    currency: Scalars['String']
+    currency: Scalars['String']['output']
     /** The unique fingerprint of the funding source. */
-    fingerprint: Scalars['ID']
+    fingerprint: Scalars['ID']['output']
     /** See CommonObject.id */
-    id: Scalars['ID']
+    id: Scalars['ID']['output']
     /** Last 4 digits of user's bank account number. */
-    last4: Scalars['String']
+    last4: Scalars['String']['output']
     /** See CommonObject.owner */
-    owner: Scalars['ID']
+    owner: Scalars['ID']['output']
     /** State of funding source. */
     state: FundingSourceState
     /** See CommonObject.updatedAtEpochMs */
-    updatedAtEpochMs: Scalars['Float']
+    updatedAtEpochMs: Scalars['Float']['output']
     /** See CommonObject.version */
-    version: Scalars['Int']
+    version: Scalars['Int']['output']
   }
 
 export enum BankAccountType {
@@ -74,9 +83,9 @@ export type CommonFundingSource = {
    * Billing currency of the funding source as 3 character ISO
    * currency code.
    */
-  currency: Scalars['String']
+  currency: Scalars['String']['output']
   /** Fingerprint of the funding source. Used to detect duplicates. */
-  fingerprint: Scalars['ID']
+  fingerprint: Scalars['ID']['output']
   /** State of funding source */
   state: FundingSourceState
 }
@@ -86,18 +95,18 @@ export type CommonObject = {
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
    * was created
    */
-  createdAtEpochMs: Scalars['Float']
+  createdAtEpochMs: Scalars['Float']['output']
   /** ID of the object */
-  id: Scalars['ID']
+  id: Scalars['ID']['output']
   /** ID of the user which owns the object. */
-  owner: Scalars['ID']
+  owner: Scalars['ID']['output']
   /**
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
    * last updated
    */
-  updatedAtEpochMs: Scalars['Float']
+  updatedAtEpochMs: Scalars['Float']['output']
   /** Update version of the object */
-  version: Scalars['Int']
+  version: Scalars['Int']['output']
 }
 
 export type CreditCardFundingSource = CommonFundingSource &
@@ -106,25 +115,25 @@ export type CreditCardFundingSource = CommonFundingSource &
     /** Type of card */
     cardType: CardType
     /** See CommonObject.createdAtEpochMs */
-    createdAtEpochMs: Scalars['Float']
+    createdAtEpochMs: Scalars['Float']['output']
     /** See CommonFundingSource.currency */
-    currency: Scalars['String']
+    currency: Scalars['String']['output']
     /** See CommonFundingSource.fingerprint */
-    fingerprint: Scalars['ID']
+    fingerprint: Scalars['ID']['output']
     /** See CommonObject.id */
-    id: Scalars['ID']
+    id: Scalars['ID']['output']
     /** Last 4 digits of user's credit card */
-    last4: Scalars['String']
+    last4: Scalars['String']['output']
     /** Card network of card */
     network: CreditCardNetwork
     /** See CommonObject.owner */
-    owner: Scalars['ID']
+    owner: Scalars['ID']['output']
     /** See CommonFundingSource.state */
     state: FundingSourceState
     /** See CommonObject.updatedAtEpochMs */
-    updatedAtEpochMs: Scalars['Float']
+    updatedAtEpochMs: Scalars['Float']['output']
     /** See CommonObject.version */
-    version: Scalars['Int']
+    version: Scalars['Int']['output']
   }
 
 export enum CreditCardNetwork {
@@ -157,29 +166,6 @@ export enum FundingSourceState {
   Refresh = 'REFRESH',
 }
 
-/**
- * Request to generate and retrieve the public token and bank account id required
- * to complete bank account funding source provisioning in a sandbox context.
- *
- * List of supported sandbox institutionId: https://plaid.com/docs/sandbox/institutions/
- */
-export type GetPlaidSandboxDataRequest = {
-  institutionId: Scalars['String']
-  username: Scalars['String']
-}
-
-/** Response containing the public token and bank account metadata to complete bank account funding source provisioning in a sandbox context. */
-export type GetPlaidSandboxDataResponse = {
-  __typename?: 'GetPlaidSandboxDataResponse'
-  /** Metadata of the bank account including ID and subtype. */
-  accountMetadata: Array<PlaidAccountMetadata>
-  /**
-   * The public token that is required to build completion data for creating
-   * a bank account funding source.
-   */
-  publicToken: Scalars['String']
-}
-
 /** Request used to retrive for virtual cards activity for a period. */
 export type GetVirtualCardsActiveRequest = {
   /**
@@ -188,20 +174,20 @@ export type GetVirtualCardsActiveRequest = {
    * End date is rounded up to the end of the day in which endDate
    * occurs according to timeZone.
    */
-  endDate: Scalars['String']
+  endDate: Scalars['String']['input']
   /**
    * Starting date range of transactions to search.
    *
    * Start date is rounded down to the beginning of the day in which startDate
    * occurs according to timeZone.
    */
-  startDate: Scalars['String']
+  startDate: Scalars['String']['input']
   /**
    * Timezone in which to determine end of a day. Default is UTC.
    * Timezone is named according to POSIX time zone naming e.g. "America/New_York" or
    * "-04:00" or "Z" or "UTC"
    */
-  timeZone?: InputMaybe<Scalars['String']>
+  timeZone?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -216,25 +202,25 @@ export type GetVirtualCardsActiveResponse = {
    *
    * A card is considered active on a day if it is active for any part of a day.
    */
-  activeCards: Array<Scalars['Int']>
+  activeCards: Array<Scalars['Int']['output']>
   /** ISO8601 representation of rounded end date in time zone specified in request. */
-  endDate: Scalars['String']
+  endDate: Scalars['String']['output']
   /** ISO8601 representation of rounded start date in time zone specified in request. */
-  startDate: Scalars['String']
+  startDate: Scalars['String']['output']
   /** Timezone used in response */
-  timeZone: Scalars['String']
+  timeZone: Scalars['String']['output']
 }
 
 export type ListFundingSourcesBySubRequest = {
-  sub: Scalars['String']
+  sub: Scalars['String']['input']
 }
 
 export type ListVirtualCardsBySubRequest = {
-  sub: Scalars['String']
+  sub: Scalars['String']['input']
 }
 
 export type ListVirtualCardsBySudoRequest = {
-  sudoId: Scalars['String']
+  sudoId: Scalars['String']['input']
 }
 
 /** Representation of a markup formula. */
@@ -245,7 +231,7 @@ export type Markup = {
    * currency unit of billed currency in containing transaction detail.
    * e.g. 31 for $0.31
    */
-  flat: Scalars['String']
+  flat: Scalars['String']['output']
   /**
    * The minimum charge that will be made to the funding source. For example,
    * if a small charge of $0.10 were made with a 2.99%+$0.31 fee formula
@@ -253,73 +239,47 @@ export type Markup = {
    * funding source charge of $0.41 cents. If minCharge is set and more than
    * this amount then the minCharge will be charged instead.
    */
-  minCharge?: Maybe<Scalars['String']>
+  minCharge?: Maybe<Scalars['String']['output']>
   /**
    * Floating point percentage amount applied in calculating
    * total markup multiple by 1000. For example: 2990 for 2.99%.
    * 1/1000th of a percent is the smallest granularity that can be
    * represented.
    */
-  percent: Scalars['String']
+  percent: Scalars['String']['output']
 }
 
 export type Merchant = {
   __typename?: 'Merchant'
   /** City that the merchant charging the virtual card is in. */
-  city?: Maybe<Scalars['String']>
+  city?: Maybe<Scalars['String']['output']>
   /** Country that the merchant charging the virtual card is in. */
-  country: Scalars['String']
+  country: Scalars['String']['output']
   /** ID of the merchant that a transaction was against. */
-  id: Scalars['ID']
+  id: Scalars['ID']['output']
   /** Merchant Category Code (MCC) that the  merchant belongs to. */
-  mcc: Scalars['String']
+  mcc: Scalars['String']['output']
   /** Postal code that the merchant charging the virtual card is in. */
-  postalCode?: Maybe<Scalars['String']>
+  postalCode?: Maybe<Scalars['String']['output']>
   /** State that the merchant charging the virtual card is in. */
-  state?: Maybe<Scalars['String']>
-}
-
-export type Mutation = {
-  __typename?: 'Mutation'
-  setFundingSourceToRequireRefresh: FundingSource
-}
-
-export type MutationSetFundingSourceToRequireRefreshArgs = {
-  input: SetFundingSourceToRequireRefreshRequest
+  state?: Maybe<Scalars['String']['output']>
 }
 
 /** Owner Id derived from the owner proof. */
 export type Owner = {
   __typename?: 'Owner'
-  id: Scalars['String']
-  issuer: Scalars['String']
-}
-
-export type PlaidAccountMetadata = {
-  __typename?: 'PlaidAccountMetadata'
-  /** ID of the bank account. */
-  accountId: Scalars['String']
-  /** Bank account subtype. E.g. checking, saving etc. */
-  subtype?: Maybe<Scalars['String']>
+  id: Scalars['String']['output']
+  issuer: Scalars['String']['output']
 }
 
 export type Query = {
   __typename?: 'Query'
-  /**
-   * Generates and returns the Plaid sandbox public token and account id required to
-   * provide information to build the bank account funding source completion data.
-   */
-  getPlaidSandboxData: GetPlaidSandboxDataResponse
   /** Return number of virtual cards active on a set of days. */
   getVirtualCardsActive: GetVirtualCardsActiveResponse
   listFundingSourcesBySub: Array<FundingSource>
   listVirtualCardsBySub: Array<VirtualCard>
   listVirtualCardsBySudo: Array<VirtualCard>
   searchVirtualCardsTransactions: TransactionResponse
-}
-
-export type QueryGetPlaidSandboxDataArgs = {
-  input: GetPlaidSandboxDataRequest
 }
 
 export type QueryGetVirtualCardsActiveArgs = {
@@ -345,38 +305,30 @@ export type QuerySearchVirtualCardsTransactionsArgs = {
 /** Request used to search for virtual card transactions. */
 export type SearchVirtualCardsTransactionsRequest = {
   /** Ending date range of transactions to search. */
-  endDate: Scalars['String']
+  endDate: Scalars['String']['input']
   /** Last 4 digits of card number. */
-  last4: Scalars['String']
+  last4: Scalars['String']['input']
   /** Max number of transaction records to fetch */
-  limit?: InputMaybe<Scalars['Int']>
+  limit?: InputMaybe<Scalars['Int']['input']>
   /**
    * Token indicating the start of the next batch
    * of records to fetch.
    */
-  nextToken?: InputMaybe<Scalars['String']>
+  nextToken?: InputMaybe<Scalars['String']['input']>
   /** Starting date range of transactions to search. */
-  startDate: Scalars['String']
+  startDate: Scalars['String']['input']
   /** ID of the user that owns the transactions. */
-  userId: Scalars['ID']
-}
-
-/**
- * Request to manually set a funding source specified by its identifier to a REFRESH
- * state.
- */
-export type SetFundingSourceToRequireRefreshRequest = {
-  fundingSourceId: Scalars['String']
+  userId: Scalars['ID']['input']
 }
 
 export type SignedAuthorizationText = {
   __typename?: 'SignedAuthorizationText'
   /** Algorithm used to generate the signature. */
-  algorithm: Scalars['String']
+  algorithm: Scalars['String']['output']
   /** Full content of the agreement */
-  content: Scalars['String']
+  content: Scalars['String']['output']
   /** Content type of the agreement. For example text/plain or text/html. */
-  contentType: Scalars['String']
+  contentType: Scalars['String']['output']
   /**
    * Data that is signed. This is a serialised JSON document of the form:
    * {
@@ -386,16 +338,16 @@ export type SignedAuthorizationText = {
    *   "account":"<unique-identifier-of-account-agreement-pertains-to>",
    * }
    */
-  data: Scalars['String']
+  data: Scalars['String']['output']
   /**
    * ID of public key registered with the virtual cards service corresponding
    * to the private key used to generate the signature
    */
-  keyId: Scalars['String']
+  keyId: Scalars['String']['output']
   /** RFC 5646 language tag specifying the language of the agreement */
-  language: Scalars['String']
+  language: Scalars['String']['output']
   /** Base64 encoded signature of the data */
-  signature: Scalars['String']
+  signature: Scalars['String']['output']
 }
 
 export type Transaction = {
@@ -409,9 +361,9 @@ export type Transaction = {
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
    * was created.
    */
-  createdAtEpochMs: Scalars['Float']
+  createdAtEpochMs: Scalars['Float']['output']
   /** Decline reason if transaction of type DECLINE. */
-  declineReason?: Maybe<Scalars['String']>
+  declineReason?: Maybe<Scalars['String']['output']>
   /**
    * List of details about this transaction depending on transaction type.
    * Pending, complete and refund transactions will always have detail.
@@ -420,31 +372,31 @@ export type Transaction = {
    */
   detail?: Maybe<Array<TransactionDetail>>
   /** ID of the object. */
-  id: Scalars['ID']
+  id: Scalars['ID']['output']
   /** Details excluding the name of the merchant. */
   merchant: Merchant
   /** ID of the user which owns the object. */
-  owner: Scalars['ID']
+  owner: Scalars['ID']['output']
   /**
    * Amount of this transaction as charged by the merchant
    * in the merchant's currency.
    */
   transactedAmount: UserCurrencyAmount
   /** Time at which transaction occurred. */
-  transactedAtEpochMs: Scalars['String']
+  transactedAtEpochMs: Scalars['String']['output']
   /** Type of this transaction. */
   type: TransactionType
   /**
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
    * last updated.
    */
-  updatedAtEpochMs: Scalars['Float']
+  updatedAtEpochMs: Scalars['Float']['output']
 }
 
 export type TransactionConnection = {
   __typename?: 'TransactionConnection'
   items: Array<Transaction>
-  nextToken?: Maybe<Scalars['String']>
+  nextToken?: Maybe<Scalars['String']['output']>
 }
 
 /**
@@ -456,9 +408,9 @@ export type TransactionDetail = {
   /** Amount charged or refunded to the funding source. */
   fundingSourceAmount: UserCurrencyAmount
   /** ID of funding source that funded this item. */
-  fundingSourceId: Scalars['ID']
+  fundingSourceId: Scalars['ID']['output']
   /** Last 4 digits of a user's credit card. */
-  fundingSourceLast4: Scalars['String']
+  fundingSourceLast4: Scalars['String']['output']
   /** Card network of a funding source. */
   fundingSourceNetwork: CreditCardNetwork
   /** Markup formula applied to billedAmount. */
@@ -477,9 +429,9 @@ export type TransactionResponse = {
    */
   cardState: CardState
   /** ID of card data is returned for */
-  id: Scalars['ID']
+  id: Scalars['ID']['output']
   /** Last 4 digits of card number. */
-  last4: Scalars['String']
+  last4: Scalars['String']['output']
   /** List of paginated transactions. */
   transactions: TransactionConnection
 }
@@ -496,49 +448,49 @@ export enum TransactionType {
 export type UserCurrencyAmount = {
   __typename?: 'UserCurrencyAmount'
   /** Amount of currency amount in currency's decimal unit. */
-  amount: Scalars['Float']
+  amount: Scalars['Float']['output']
   /** Currency of currency amount. */
-  currency: Scalars['String']
+  currency: Scalars['String']['output']
 }
 
 /** Admin representation of a virtual card. */
 export type VirtualCard = CommonObject & {
   __typename?: 'VirtualCard'
   /** Time since epoch in which the virtual card will no longer be valid in system. */
-  activeToEpochMs: Scalars['Float']
+  activeToEpochMs: Scalars['Float']['output']
   /**
    * Public key encryption algorithm specifier. See Sudo Platform documentation
    * for set of allowed values.
    */
-  algorithm: Scalars['String']
+  algorithm: Scalars['String']['output']
   /** Time since epoch in which the card was cancelled. */
-  cancelledAtEpochMs?: Maybe<Scalars['Float']>
+  cancelledAtEpochMs?: Maybe<Scalars['Float']['output']>
   /**
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
    * was created
    */
-  createdAtEpochMs: Scalars['Float']
+  createdAtEpochMs: Scalars['Float']['output']
   /** A representation of the currency of the virtual card (i.e. USD, CAD, AUD). */
-  currency: Scalars['String']
+  currency: Scalars['String']['output']
   /**
    * ID of funding source that will be used to fund activity on
    * the card.
    */
-  fundingSourceId: Scalars['ID']
+  fundingSourceId: Scalars['ID']['output']
   /** ID of the object */
-  id: Scalars['ID']
+  id: Scalars['ID']['output']
   /** Client generated key ID for the public key. */
-  keyId: Scalars['String']
+  keyId: Scalars['String']['output']
   /**
    * Client generated key ring ID for the public key ring used
    * for sealing this card and transactions information for this
    * card.
    */
-  keyRingId: Scalars['ID']
+  keyRingId: Scalars['ID']['output']
   /** Last 4 digits of card number. */
-  last4: Scalars['String']
+  last4: Scalars['String']['output']
   /** ID of the user which owns the object. */
-  owner: Scalars['ID']
+  owner: Scalars['ID']['output']
   /**
    * Array of owner Ids that are extracted from the owner proofs
    * to tie a virtual card to a Sudo.
@@ -550,9 +502,9 @@ export type VirtualCard = CommonObject & {
    * Time in milliseconds since 1970-01-01T00:00:00Z when object
    * last updated
    */
-  updatedAtEpochMs: Scalars['Float']
+  updatedAtEpochMs: Scalars['Float']['output']
   /** Update version of the object */
-  version: Scalars['Int']
+  version: Scalars['Int']['output']
 }
 
 export type CreditCardFundingSourceFragment = {
@@ -762,69 +714,6 @@ export type VirtualCardWithoutSealedAttributesFragment = {
   cancelledAtEpochMs?: number | null
   last4: string
   owners: Array<{ __typename?: 'Owner'; id: string; issuer: string }>
-}
-
-export type SetFundingSourceToRequireRefreshMutationVariables = Exact<{
-  input: SetFundingSourceToRequireRefreshRequest
-}>
-
-export type SetFundingSourceToRequireRefreshMutation = {
-  __typename?: 'Mutation'
-  setFundingSourceToRequireRefresh:
-    | {
-        __typename?: 'BankAccountFundingSource'
-        id: string
-        owner: string
-        version: number
-        createdAtEpochMs: number
-        updatedAtEpochMs: number
-        state: FundingSourceState
-        currency: string
-        fingerprint: string
-        last4: string
-        bankAccountType: BankAccountType
-        authorization: {
-          __typename?: 'SignedAuthorizationText'
-          content: string
-          contentType: string
-          language: string
-          data: string
-          signature: string
-          algorithm: string
-          keyId: string
-        }
-      }
-    | {
-        __typename?: 'CreditCardFundingSource'
-        id: string
-        owner: string
-        version: number
-        createdAtEpochMs: number
-        updatedAtEpochMs: number
-        state: FundingSourceState
-        currency: string
-        fingerprint: string
-        last4: string
-        cardType: CardType
-        network: CreditCardNetwork
-      }
-}
-
-export type GetPlaidSandboxDataQueryVariables = Exact<{
-  input: GetPlaidSandboxDataRequest
-}>
-
-export type GetPlaidSandboxDataQuery = {
-  __typename?: 'Query'
-  getPlaidSandboxData: {
-    __typename?: 'GetPlaidSandboxDataResponse'
-    publicToken: string
-    accountMetadata: Array<{
-      __typename?: 'PlaidAccountMetadata'
-      accountId: string
-      subtype?: string | null
-    }>
-  }
 }
 
 export type GetVirtualCardsActiveQueryVariables = Exact<{
@@ -1628,245 +1517,6 @@ export const VirtualCardWithoutSealedAttributesFragmentDoc = {
 } as unknown as DocumentNode<
   VirtualCardWithoutSealedAttributesFragment,
   unknown
->
-export const SetFundingSourceToRequireRefreshDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'SetFundingSourceToRequireRefresh' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'input' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: {
-                kind: 'Name',
-                value: 'SetFundingSourceToRequireRefreshRequest',
-              },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'setFundingSourceToRequireRefresh' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'input' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'input' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'AdminFundingSource' },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'CreditCardFundingSource' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'CreditCardFundingSource' },
-      },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'cardType' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'network' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'BankAccountFundingSource' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'BankAccountFundingSource' },
-      },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'bankAccountType' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'authorization' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'contentType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'data' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AdminFundingSource' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'FundingSource' },
-      },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'InlineFragment',
-            typeCondition: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'CreditCardFundingSource' },
-            },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'CreditCardFundingSource' },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'InlineFragment',
-            typeCondition: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'BankAccountFundingSource' },
-            },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'BankAccountFundingSource' },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  SetFundingSourceToRequireRefreshMutation,
-  SetFundingSourceToRequireRefreshMutationVariables
->
-export const GetPlaidSandboxDataDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetPlaidSandboxData' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'input' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'GetPlaidSandboxDataRequest' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'getPlaidSandboxData' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'input' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'input' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'accountMetadata' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'accountId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'subtype' },
-                      },
-                    ],
-                  },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'publicToken' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GetPlaidSandboxDataQuery,
-  GetPlaidSandboxDataQueryVariables
 >
 export const GetVirtualCardsActiveDocument = {
   kind: 'Document',

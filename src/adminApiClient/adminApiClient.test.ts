@@ -27,10 +27,6 @@ import {
 import {
   CardState,
   FundingSource,
-  GetPlaidSandboxDataDocument,
-  GetPlaidSandboxDataQuery,
-  GetPlaidSandboxDataRequest,
-  GetPlaidSandboxDataResponse,
   GetVirtualCardsActiveDocument,
   GetVirtualCardsActiveQuery,
   GetVirtualCardsActiveRequest,
@@ -47,9 +43,6 @@ import {
   SearchVirtualCardsTransactionsDocument,
   SearchVirtualCardsTransactionsQuery,
   SearchVirtualCardsTransactionsRequest,
-  SetFundingSourceToRequireRefreshDocument,
-  SetFundingSourceToRequireRefreshMutation,
-  SetFundingSourceToRequireRefreshRequest,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
@@ -90,93 +83,6 @@ describe('\nadminApiClient tests', () => {
   })
 
   const fetchPolicy = 'network-only'
-  const externalId = 'mock-external-id'
-
-  describe('getPlaidSandboxData tests', () => {
-    const institutionId = 'mock-institution-id'
-    const username = 'mock-username'
-    const publicToken = 'mock-public-token'
-
-    const request: GetPlaidSandboxDataRequest = {
-      institutionId,
-      username,
-    }
-
-    const result: GetPlaidSandboxDataResponse = {
-      __typename: 'GetPlaidSandboxDataResponse',
-      publicToken,
-      accountMetadata: [
-        {
-          __typename: 'PlaidAccountMetadata',
-          accountId: externalId,
-        },
-      ],
-    }
-
-    it('should return results', async () => {
-      when(mockClient.query<GetPlaidSandboxDataQuery>(anything())).thenResolve({
-        data: {
-          getPlaidSandboxData: result,
-        },
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
-      })
-
-      await expect(
-        adminApiClient.getPlaidSandboxData(request),
-      ).resolves.toEqual(result)
-
-      const [actualQuery] = capture(mockClient.query as any).first()
-      expect(actualQuery).toEqual({
-        query: GetPlaidSandboxDataDocument,
-        variables: { input: request },
-        fetchPolicy,
-      })
-      verify(mockClient.query(anything())).once()
-    })
-
-    it('should throw `FatalError` when no result data is returned', async () => {
-      const error = new FatalError(
-        'getPlaidSandboxData did not return any result.',
-      )
-
-      when(mockClient.query<GetPlaidSandboxDataQuery>(anything())).thenReject(
-        error,
-      )
-
-      await expect(
-        adminApiClient.getPlaidSandboxData(anything()),
-      ).rejects.toEqual(error)
-    })
-
-    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
-      const error = new Error()
-
-      when(mockClient.query<GetPlaidSandboxDataQuery>(anything())).thenReject(
-        error,
-      )
-
-      await expect(
-        adminApiClient.getPlaidSandboxData(anything()),
-      ).rejects.toEqual(new UnknownGraphQLError(error))
-    })
-
-    it('should throw `IllegalArgumentError` when invalid argument received', async () => {
-      const invalidRequest = {
-        invalid: 'argument',
-      } as unknown as GetPlaidSandboxDataRequest
-      const error = new IllegalArgumentError()
-
-      when(mockClient.query<GetPlaidSandboxDataQuery>(anything())).thenReject(
-        error,
-      )
-
-      await expect(
-        adminApiClient.getPlaidSandboxData(invalidRequest),
-      ).rejects.toThrow(error)
-    })
-  })
 
   describe('getVirtualCardsActive tests', () => {
     const now = new Date()
@@ -636,81 +542,6 @@ describe('\nadminApiClient tests', () => {
       await expect(
         adminApiClient.searchVirtualCardsTransactions(request),
       ).rejects.toEqual(new CardNotFoundError())
-    })
-  })
-
-  describe('setFundingSourceToRequireRefresh tests', () => {
-    const request: SetFundingSourceToRequireRefreshRequest = {
-      fundingSourceId: 'mock-id',
-    }
-
-    const result: FundingSource = GraphQLDataFactory.bankAccountFundingSource
-
-    it('should return results', async () => {
-      when(
-        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
-      ).thenResolve({
-        data: {
-          setFundingSourceToRequireRefresh: result,
-        },
-      })
-
-      await expect(
-        adminApiClient.setFundingSourceToRequireRefresh(request),
-      ).resolves.toEqual(result)
-
-      const [actualMutation] = capture(mockClient.mutate as any).first()
-      expect(actualMutation).toEqual({
-        mutation: SetFundingSourceToRequireRefreshDocument,
-        variables: { input: request },
-      })
-
-      verify(mockClient.mutate(anything())).once()
-    })
-
-    it('should throw `FatalError` when no result data is returned', async () => {
-      const error = new FatalError(
-        'setFundingSourceToRequireRefresh did not return any result.',
-      )
-
-      when(
-        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
-      ).thenReject(error)
-
-      await expect(
-        adminApiClient.setFundingSourceToRequireRefresh(request),
-      ).rejects.toEqual(
-        new FatalError(
-          'setFundingSourceToRequireRefresh did not return any result.',
-        ),
-      )
-    })
-
-    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
-      const error = new Error()
-
-      when(
-        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
-      ).thenReject(error)
-
-      await expect(
-        adminApiClient.setFundingSourceToRequireRefresh(anything()),
-      ).rejects.toEqual(new UnknownGraphQLError(error))
-    })
-
-    it('should throw `IllegalArgumentError` when invalid argument received', async () => {
-      const invalidRequest = {
-        invalid: 'argument',
-      } as unknown as SetFundingSourceToRequireRefreshRequest
-      const error = new IllegalArgumentError()
-
-      when(
-        mockClient.mutate<SetFundingSourceToRequireRefreshMutation>(anything()),
-      ).thenReject(error)
-
-      await expect(
-        adminApiClient.setFundingSourceToRequireRefresh(invalidRequest),
-      ).rejects.toThrow(error)
     })
   })
 })
