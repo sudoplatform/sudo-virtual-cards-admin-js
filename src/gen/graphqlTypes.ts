@@ -43,6 +43,8 @@ export type BankAccountFundingSource = CommonFundingSource &
     currency: Scalars['String']['output']
     /** The unique fingerprint of the funding source. */
     fingerprint: Scalars['ID']['output']
+    /** See CommonFundingSource.flags */
+    flags: Array<FundingSourceFlags>
     /** See CommonObject.id */
     id: Scalars['ID']['output']
     /** Last 4 digits of user's bank account number. */
@@ -86,6 +88,8 @@ export type CommonFundingSource = {
   currency: Scalars['String']['output']
   /** Fingerprint of the funding source. Used to detect duplicates. */
   fingerprint: Scalars['ID']['output']
+  /** Flags associated with funding source */
+  flags: Array<FundingSourceFlags>
   /** State of funding source */
   state: FundingSourceState
 }
@@ -120,6 +124,8 @@ export type CreditCardFundingSource = CommonFundingSource &
     currency: Scalars['String']['output']
     /** See CommonFundingSource.fingerprint */
     fingerprint: Scalars['ID']['output']
+    /** See CommonFundingSource.flags */
+    flags: Array<FundingSourceFlags>
     /** See CommonObject.id */
     id: Scalars['ID']['output']
     /** Last 4 digits of user's credit card */
@@ -148,6 +154,10 @@ export enum CreditCardNetwork {
 }
 
 export type FundingSource = BankAccountFundingSource | CreditCardFundingSource
+
+export enum FundingSourceFlags {
+  Unfunded = 'UNFUNDED',
+}
 
 /**
  * ACTIVE: Funding source is completely set up and in a state suitable
@@ -515,6 +525,7 @@ export type CreditCardFundingSourceFragment = {
   createdAtEpochMs: number
   updatedAtEpochMs: number
   state: FundingSourceState
+  flags: Array<FundingSourceFlags>
   currency: string
   fingerprint: string
   last4: string
@@ -530,6 +541,7 @@ export type BankAccountFundingSourceFragment = {
   createdAtEpochMs: number
   updatedAtEpochMs: number
   state: FundingSourceState
+  flags: Array<FundingSourceFlags>
   currency: string
   fingerprint: string
   last4: string
@@ -554,6 +566,7 @@ type AdminFundingSource_BankAccountFundingSource_Fragment = {
   createdAtEpochMs: number
   updatedAtEpochMs: number
   state: FundingSourceState
+  flags: Array<FundingSourceFlags>
   currency: string
   fingerprint: string
   last4: string
@@ -578,6 +591,7 @@ type AdminFundingSource_CreditCardFundingSource_Fragment = {
   createdAtEpochMs: number
   updatedAtEpochMs: number
   state: FundingSourceState
+  flags: Array<FundingSourceFlags>
   currency: string
   fingerprint: string
   last4: string
@@ -746,6 +760,7 @@ export type ListFundingSourcesBySubQuery = {
         createdAtEpochMs: number
         updatedAtEpochMs: number
         state: FundingSourceState
+        flags: Array<FundingSourceFlags>
         currency: string
         fingerprint: string
         last4: string
@@ -769,6 +784,7 @@ export type ListFundingSourcesBySubQuery = {
         createdAtEpochMs: number
         updatedAtEpochMs: number
         state: FundingSourceState
+        flags: Array<FundingSourceFlags>
         currency: string
         fingerprint: string
         last4: string
@@ -923,6 +939,7 @@ export const CreditCardFundingSourceFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'flags' } },
           { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
           { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
@@ -952,6 +969,7 @@ export const BankAccountFundingSourceFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'flags' } },
           { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
           { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
@@ -1041,6 +1059,7 @@ export const AdminFundingSourceFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'flags' } },
           { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
           { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
@@ -1065,6 +1084,7 @@ export const AdminFundingSourceFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'flags' } },
           { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
           { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
@@ -1643,6 +1663,7 @@ export const ListFundingSourcesBySubDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'flags' } },
           { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
           { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
@@ -1667,6 +1688,7 @@ export const ListFundingSourcesBySubDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'flags' } },
           { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fingerprint' } },
           { kind: 'Field', name: { kind: 'Name', value: 'last4' } },

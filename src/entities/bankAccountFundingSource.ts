@@ -8,6 +8,7 @@ import { BankAccountType } from './bankAccountType'
 import { CommonObject } from './commonObject'
 import { FundingSourceState } from './fundingSourceState'
 import { SignedAuthorizationText } from './signedAuthorizationText'
+import { FundingSourceFlags } from './fundingSourceFlags'
 
 /**
  * Domain-level representation of an admin Bank Account Funding Source.
@@ -20,6 +21,10 @@ export interface BankAccountFundingSource extends CommonObject {
    * Current state of funding source.
    */
   state: FundingSourceState
+  /**
+   * Any flags which apply to this funding source.
+   */
+  flags: FundingSourceFlags[]
   /**
    * Currency that funding source is denominated in.
    */

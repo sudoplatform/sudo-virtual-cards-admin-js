@@ -12,6 +12,7 @@ import {
 import { CardType as CardTypeEntity } from '../../../entities/cardType'
 import { FundingSourceStateTransformer } from '../fundingSourceStateTransformer'
 import { CreditCardNetworkTransformer } from '../creditCardNetworkTransformer'
+import { FundingSourceFlagsTransformer } from '../fundingSourceFlagsTransformer'
 
 /**
  * Utility transformer class, responsible for transforming between
@@ -39,6 +40,7 @@ export class CreditCardFundingSourceTransformer {
       createdAt: new Date(graphql.createdAtEpochMs),
       updatedAt: new Date(graphql.updatedAtEpochMs),
       state: FundingSourceStateTransformer.toEntity(graphql.state),
+      flags: FundingSourceFlagsTransformer.toEntity(graphql.flags),
       currency: graphql.currency,
       fingerprint: graphql.fingerprint,
       last4: graphql.last4,
@@ -68,6 +70,7 @@ export class CreditCardFundingSourceTransformer {
       createdAtEpochMs: entity.createdAt.getTime(),
       updatedAtEpochMs: entity.updatedAt.getTime(),
       state: FundingSourceStateTransformer.toGraphQL(entity.state),
+      flags: FundingSourceFlagsTransformer.toGraphQL(entity.flags),
       currency: entity.currency,
       fingerprint: entity.fingerprint,
       last4: entity.last4,

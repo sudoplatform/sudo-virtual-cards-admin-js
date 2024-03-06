@@ -46,6 +46,9 @@ enum FundingSourceState {
   REFRESH
 }
 
+enum FundingSourceFlags {
+  UNFUNDED
+}
 enum CardType {
   CREDIT
   DEBIT
@@ -106,6 +109,11 @@ interface CommonFundingSource {
   state: FundingSourceState!
 
   """
+  Flags associated with funding source
+  """
+  flags: [FundingSourceFlags!]!
+
+  """
   Billing currency of the funding source as 3 character ISO
   currency code.
   """
@@ -147,6 +155,11 @@ type CreditCardFundingSource implements CommonObject & CommonFundingSource {
   See CommonFundingSource.state
   """
   state: FundingSourceState!
+
+  """
+  See CommonFundingSource.flags
+  """
+  flags: [FundingSourceFlags!]!
 
   """
   See CommonFundingSource.currency
@@ -247,6 +260,11 @@ type BankAccountFundingSource implements CommonObject & CommonFundingSource {
   State of funding source.
   """
   state: FundingSourceState!
+
+  """
+  See CommonFundingSource.flags
+  """
+  flags: [FundingSourceFlags!]!
 
   """
   Currency that funding source is denominated in.

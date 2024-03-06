@@ -5,6 +5,7 @@ fragment CreditCardFundingSource on CreditCardFundingSource {
   createdAtEpochMs
   updatedAtEpochMs
   state
+  flags
   currency
   fingerprint
   last4
@@ -19,6 +20,7 @@ fragment BankAccountFundingSource on BankAccountFundingSource {
   createdAtEpochMs
   updatedAtEpochMs
   state
+  flags
   currency
   fingerprint
   last4

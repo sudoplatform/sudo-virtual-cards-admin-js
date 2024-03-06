@@ -8,6 +8,7 @@ import { CommonObject } from './commonObject'
 import { FundingSourceState } from './fundingSourceState'
 import { CreditCardNetwork } from './creditCardNetwork'
 import { CardType } from './cardType'
+import { FundingSourceFlags } from './fundingSourceFlags'
 
 /**
  * Domain-level representation of an admin Credit Card Funding Source.
@@ -20,6 +21,10 @@ export interface CreditCardFundingSource extends CommonObject {
    * Current state of funding source.
    */
   state: FundingSourceState
+  /**
+   * Any flags which apply to this funding source.
+   */
+  flags: FundingSourceFlags[]
   /**
    * Currency that funding source is denominated in.
    */

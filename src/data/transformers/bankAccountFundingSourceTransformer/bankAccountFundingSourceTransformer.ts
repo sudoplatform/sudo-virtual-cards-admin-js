@@ -12,6 +12,7 @@ import { FundingSourceStateTransformer } from '../fundingSourceStateTransformer'
 import { SignedAuthorizationTextTransformer } from '../signedAuthorizationTextTransformer'
 import { BankAccountType as BankAccountTypeEntity } from '../../../entities/bankAccountType'
 import { BankAccountFundingSource as BankAccountFundingSourceEntity } from '../../../entities/bankAccountFundingSource'
+import { FundingSourceFlagsTransformer } from '../fundingSourceFlagsTransformer'
 
 /**
  * Utility transformer class responsible for transforming between a
@@ -44,6 +45,7 @@ export class BankAccountFundingSourceTransformer {
         ),
       currency: graphql.currency,
       state: FundingSourceStateTransformer.toEntity(graphql.state),
+      flags: FundingSourceFlagsTransformer.toEntity(graphql.flags),
       last4: graphql.last4,
       fingerprint: graphql.fingerprint,
       authorization: SignedAuthorizationTextTransformer.toEntity(
@@ -76,6 +78,7 @@ export class BankAccountFundingSourceTransformer {
         ),
       currency: entity.currency,
       state: FundingSourceStateTransformer.toGraphQL(entity.state),
+      flags: FundingSourceFlagsTransformer.toGraphQL(entity.flags),
       last4: entity.last4,
       fingerprint: entity.fingerprint,
       authorization: SignedAuthorizationTextTransformer.toGraphQL(

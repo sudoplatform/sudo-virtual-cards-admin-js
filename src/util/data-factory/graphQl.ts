@@ -38,6 +38,7 @@ export class GraphQLDataFactory {
     id: 'dummyFundingSourceId',
     currency: 'dummyCurrency',
     state: FundingSourceState.Active,
+    flags: [],
     last4: '1234',
     fingerprint: 'fingerprint',
   }
