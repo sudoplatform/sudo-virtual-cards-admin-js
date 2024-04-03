@@ -7,12 +7,14 @@
 import {
   BankAccountFundingSource as BankAccountFundingSourceGraphQL,
   BankAccountType as BankAccountTypeGraphQL,
+  UserCurrencyAmount as UserCurrencyAmountGraphQL,
 } from '../../../gen/graphqlTypes'
 import { FundingSourceStateTransformer } from '../fundingSourceStateTransformer'
 import { SignedAuthorizationTextTransformer } from '../signedAuthorizationTextTransformer'
 import { BankAccountType as BankAccountTypeEntity } from '../../../entities/bankAccountType'
 import { BankAccountFundingSource as BankAccountFundingSourceEntity } from '../../../entities/bankAccountFundingSource'
 import { FundingSourceFlagsTransformer } from '../fundingSourceFlagsTransformer'
+import { UserCurrencyAmount } from '../../../entities/userCurrencyAmount'
 
 /**
  * Utility transformer class responsible for transforming between a
@@ -51,6 +53,11 @@ export class BankAccountFundingSourceTransformer {
       authorization: SignedAuthorizationTextTransformer.toEntity(
         graphql.authorization,
       ),
+      unfundedAmount: graphql.unfundedAmount
+        ? BankAccountFundingSourceTransformer.toEntityCurrencyAmountType(
+            graphql.unfundedAmount,
+          )
+        : undefined,
     }
   }
 
@@ -84,6 +91,11 @@ export class BankAccountFundingSourceTransformer {
       authorization: SignedAuthorizationTextTransformer.toGraphQL(
         entity.authorization,
       ),
+      unfundedAmount: entity.unfundedAmount
+        ? BankAccountFundingSourceTransformer.toGraphQLCurrencyAmountType(
+            entity.unfundedAmount,
+          )
+        : undefined,
     }
   }
 
@@ -126,6 +138,24 @@ export class BankAccountFundingSourceTransformer {
         return BankAccountTypeGraphQL.Savings
       case BankAccountTypeEntity.Other:
         return BankAccountTypeGraphQL.Other
+    }
+  }
+
+  private static toEntityCurrencyAmountType(
+    graphql: UserCurrencyAmountGraphQL,
+  ): UserCurrencyAmount {
+    return {
+      currency: graphql.currency,
+      amount: graphql.amount,
+    }
+  }
+  private static toGraphQLCurrencyAmountType(
+    entity: UserCurrencyAmount,
+  ): UserCurrencyAmountGraphQL {
+    return {
+      __typename: 'UserCurrencyAmount',
+      currency: entity.currency,
+      amount: entity.amount,
     }
   }
 }

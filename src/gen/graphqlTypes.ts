@@ -53,6 +53,8 @@ export type BankAccountFundingSource = CommonFundingSource &
     owner: Scalars['ID']['output']
     /** State of funding source. */
     state: FundingSourceState
+    /** The amount by which this funding source is unfunded, if it is unfunded. */
+    unfundedAmount?: Maybe<UserCurrencyAmount>
     /** See CommonObject.updatedAtEpochMs */
     updatedAtEpochMs: Scalars['Float']['output']
     /** See CommonObject.version */
@@ -156,6 +158,7 @@ export enum CreditCardNetwork {
 export type FundingSource = BankAccountFundingSource | CreditCardFundingSource
 
 export enum FundingSourceFlags {
+  Refresh = 'REFRESH',
   Unfunded = 'UNFUNDED',
 }
 
@@ -165,15 +168,10 @@ export enum FundingSourceFlags {
  *
  * INACTIVE: Funding source is inactive. Is not usable for funding of new transactions
  * but may receive refunds or additional charges on partially complete transactions.
- *
- * REFRESH: Funding source requires a provider-specific refresh. Is currently active
- * (and obeys other status associated with ACTIVE) but may be moved to INACTIVE if user
- * intervention does not occur.
  */
 export enum FundingSourceState {
   Active = 'ACTIVE',
   Inactive = 'INACTIVE',
-  Refresh = 'REFRESH',
 }
 
 /** Request used to retrive for virtual cards activity for a period. */
@@ -556,6 +554,11 @@ export type BankAccountFundingSourceFragment = {
     algorithm: string
     keyId: string
   }
+  unfundedAmount?: {
+    __typename?: 'UserCurrencyAmount'
+    currency: string
+    amount: number
+  } | null
 }
 
 type AdminFundingSource_BankAccountFundingSource_Fragment = {
@@ -581,6 +584,11 @@ type AdminFundingSource_BankAccountFundingSource_Fragment = {
     algorithm: string
     keyId: string
   }
+  unfundedAmount?: {
+    __typename?: 'UserCurrencyAmount'
+    currency: string
+    amount: number
+  } | null
 }
 
 type AdminFundingSource_CreditCardFundingSource_Fragment = {
@@ -775,6 +783,11 @@ export type ListFundingSourcesBySubQuery = {
           algorithm: string
           keyId: string
         }
+        unfundedAmount?: {
+          __typename?: 'UserCurrencyAmount'
+          currency: string
+          amount: number
+        } | null
       }
     | {
         __typename?: 'CreditCardFundingSource'
@@ -990,6 +1003,17 @@ export const BankAccountFundingSourceFragmentDoc = {
               ],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unfundedAmount' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -1102,6 +1126,17 @@ export const AdminFundingSourceFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unfundedAmount' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
               ],
             },
           },
@@ -1706,6 +1741,17 @@ export const ListFundingSourcesBySubDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'signature' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unfundedAmount' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
               ],
             },
           },

@@ -13,7 +13,6 @@ describe('FundingSourceStateTransformer tests', () => {
     entity                               | graphQL
     ${FundingSourceStateEntity.Active}   | ${FundingSourceStateGraphQL.Active}
     ${FundingSourceStateEntity.Inactive} | ${FundingSourceStateGraphQL.Inactive}
-    ${FundingSourceStateEntity.Refresh}  | ${FundingSourceStateGraphQL.Refresh}
   `(
     'should transform entity ($entity) to graphQL ($graphQL)',
     ({ entity, graphQL }) => {
@@ -27,7 +26,6 @@ describe('FundingSourceStateTransformer tests', () => {
     graphQL                               | entity
     ${FundingSourceStateGraphQL.Active}   | ${FundingSourceStateEntity.Active}
     ${FundingSourceStateGraphQL.Inactive} | ${FundingSourceStateEntity.Inactive}
-    ${FundingSourceStateGraphQL.Refresh}  | ${FundingSourceStateEntity.Refresh}
   `(
     'should transform graphQL ($graphQL) to entity ($entity)',
     ({ graphQL, entity }) => {

@@ -31,8 +31,6 @@ export class FundingSourceStateTransformer {
         return FundingSourceStateEntity.Active
       case FundingSourceStateGraphQL.Inactive:
         return FundingSourceStateEntity.Inactive
-      case FundingSourceStateGraphQL.Refresh:
-        return FundingSourceStateEntity.Refresh
     }
   }
 
@@ -52,8 +50,6 @@ export class FundingSourceStateTransformer {
         return FundingSourceStateGraphQL.Active
       case FundingSourceStateEntity.Inactive:
         return FundingSourceStateGraphQL.Inactive
-      case FundingSourceStateEntity.Refresh:
-        return FundingSourceStateGraphQL.Refresh
     }
   }
 }

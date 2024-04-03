@@ -34,6 +34,10 @@ fragment BankAccountFundingSource on BankAccountFundingSource {
     algorithm
     keyId
   }
+  unfundedAmount {
+    currency
+    amount
+  }
 }
 
 fragment AdminFundingSource on FundingSource {

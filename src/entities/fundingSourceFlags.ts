@@ -7,12 +7,14 @@
 /**
  * Flags associated with funding sources.
  *
- * UNFUNDED - a funding source flagged as unfunded prevents the user from transacting
- *            on any of their funding sources.
+ * UNFUNDED - a funding source flagged as unfunded applies limited velocities across
+ *            all of the user's funding sources.
+ * REFRESH -  Funding source requires a provider-specific refresh.
  *
  * @export
  * @enum FundingSourceFlags
  */
 export enum FundingSourceFlags {
-  Unfunded = 'UNFUNDED', // Funding source is unfunded and restricted velocities apply
+  Unfunded = 'UNFUNDED',
+  Refresh = 'REFRESH',
 }

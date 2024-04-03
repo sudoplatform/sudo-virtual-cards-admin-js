@@ -90,7 +90,6 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "apollo-client": "^2.6.10",
-    "aws-sdk": "^2.1567.0",
     "bunyan": "^1.8.15",
     "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",

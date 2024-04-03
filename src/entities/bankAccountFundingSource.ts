@@ -9,6 +9,7 @@ import { CommonObject } from './commonObject'
 import { FundingSourceState } from './fundingSourceState'
 import { SignedAuthorizationText } from './signedAuthorizationText'
 import { FundingSourceFlags } from './fundingSourceFlags'
+import { UserCurrencyAmount } from './userCurrencyAmount'
 
 /**
  * Domain-level representation of an admin Bank Account Funding Source.
@@ -50,4 +51,9 @@ export interface BankAccountFundingSource extends CommonObject {
    * The signed authorization providing authority to transact on the bank account.
    */
   authorization: SignedAuthorizationText
+
+  /**
+   * The amount by which this funding source is unfunded, if it is.
+   */
+  unfundedAmount?: UserCurrencyAmount
 }

@@ -74,6 +74,11 @@ export class GraphQLDataFactory {
     version: 1,
     bankAccountType: BankAccountType.Savings,
     authorization: this.signedAuthorizationText,
+    unfundedAmount: {
+      __typename: 'UserCurrencyAmount',
+      currency: 'USD',
+      amount: 123,
+    },
   }
 
   static readonly virtualCards: VirtualCard = {

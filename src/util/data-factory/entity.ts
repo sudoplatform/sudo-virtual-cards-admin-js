@@ -68,6 +68,7 @@ export class EntityDataFactory {
     version: 1,
     bankAccountType: BankAccountType.Savings,
     authorization: this.signedAuthorizationText,
+    unfundedAmount: { currency: 'USD', amount: 123 },
   }
 
   static readonly virtualCards: VirtualCard = {

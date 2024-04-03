@@ -19,7 +19,7 @@ export class FundingSourceFlagsTransformer {
    * Transform a `FundingSourceFlags` GraphQL type to its Entity type.
    *
    * @static
-   * @param {FundingSourceFlagsGraphQL} graphql
+   * @param {FundingSourceFlagsGraphQL} input
    * @returns {FundingSourceFlagsEntity}
    * @memberof FundingSourceFlagsTransformer
    */
@@ -30,6 +30,8 @@ export class FundingSourceFlagsTransformer {
       switch (f) {
         case FundingSourceFlagsGraphQL.Unfunded:
           return FundingSourceFlagsEntity.Unfunded
+        case FundingSourceFlagsGraphQL.Refresh:
+          return FundingSourceFlagsEntity.Refresh
       }
     })
   }
@@ -49,6 +51,8 @@ export class FundingSourceFlagsTransformer {
       switch (f) {
         case FundingSourceFlagsEntity.Unfunded:
           return FundingSourceFlagsGraphQL.Unfunded
+        case FundingSourceFlagsEntity.Refresh:
+          return FundingSourceFlagsGraphQL.Refresh
       }
     })
   }

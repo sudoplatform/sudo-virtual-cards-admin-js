@@ -25,6 +25,18 @@ describe('BankAccountFundingSourceTransformer tests', () => {
         GraphQLDataFactory.bankAccountFundingSource,
       ),
     ).toEqual(EntityDataFactory.bankAccountFundingSource)
+    const graphQlNoUnfundedAmount = {
+      ...GraphQLDataFactory.bankAccountFundingSource,
+      unfundedAmount: null,
+    }
+
+    const entityNoUnfundedAmount = {
+      ...EntityDataFactory.bankAccountFundingSource,
+      unfundedAmount: undefined,
+    }
+    expect(
+      BankAccountFundingSourceTransformer.toEntity(graphQlNoUnfundedAmount),
+    ).toEqual(entityNoUnfundedAmount)
   })
 
   it.each`

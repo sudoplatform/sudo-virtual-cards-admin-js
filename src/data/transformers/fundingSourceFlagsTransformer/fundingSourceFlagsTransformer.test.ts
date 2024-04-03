@@ -12,6 +12,7 @@ describe('FundingSourceFlagsTransformer tests', () => {
   it.each`
     entity                                 | graphQL
     ${[FundingSourceFlagsEntity.Unfunded]} | ${[FundingSourceFlagsGraphQL.Unfunded]}
+    ${[FundingSourceFlagsEntity.Refresh]}  | ${[FundingSourceFlagsGraphQL.Refresh]}
   `(
     'should transform entity ($entity) to graphQL ($graphQL)',
     ({ entity, graphQL }) => {
@@ -24,6 +25,7 @@ describe('FundingSourceFlagsTransformer tests', () => {
   it.each`
     graphQL                                 | entity
     ${[FundingSourceFlagsGraphQL.Unfunded]} | ${[FundingSourceFlagsEntity.Unfunded]}
+    ${[FundingSourceFlagsGraphQL.Refresh]}  | ${[FundingSourceFlagsEntity.Refresh]}
   `(
     'should transform graphQL ($graphQL) to entity ($entity)',
     ({ graphQL, entity }) => {
