@@ -113,6 +113,8 @@ export class EntityDataFactory {
     fundingSourceId: 'fundingSourceId',
     serviceFee: this.userCurrencyAmount,
     fundingSourceAmount: this.userCurrencyAmount,
+    transactedAt: new Date(1.0),
+    settledAt: new Date(2.0),
     fundingSourceLast4: '1234',
     fundingSourceNetwork: CreditCardNetwork.Visa,
   }

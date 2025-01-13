@@ -425,6 +425,10 @@ export type TransactionDetail = {
   markup: Markup
   /** Amount of the service fee applied to the transacted amount. */
   serviceFee: UserCurrencyAmount
+  /** Timestamp at which this detail charge was settled with the funding source provider */
+  settledAtEpochMs?: Maybe<Scalars['Float']['output']>
+  /** Timestamp at which this detail charge was transacted at the funding source provider */
+  transactedAtEpochMs?: Maybe<Scalars['Float']['output']>
   /** Amount merchant charged virtual card. */
   virtualCardAmount: UserCurrencyAmount
 }
@@ -659,6 +663,8 @@ export type TransactionFragment = {
   detail?: Array<{
     __typename?: 'TransactionDetail'
     fundingSourceId: string
+    transactedAtEpochMs?: number | null
+    settledAtEpochMs?: number | null
     fundingSourceLast4: string
     fundingSourceNetwork: CreditCardNetwork
     virtualCardAmount: {
@@ -688,6 +694,8 @@ export type TransactionFragment = {
 export type TransactionDetailFragment = {
   __typename?: 'TransactionDetail'
   fundingSourceId: string
+  transactedAtEpochMs?: number | null
+  settledAtEpochMs?: number | null
   fundingSourceLast4: string
   fundingSourceNetwork: CreditCardNetwork
   virtualCardAmount: {
@@ -904,6 +912,8 @@ export type SearchVirtualCardsTransactionsQuery = {
         detail?: Array<{
           __typename?: 'TransactionDetail'
           fundingSourceId: string
+          transactedAtEpochMs?: number | null
+          settledAtEpochMs?: number | null
           fundingSourceLast4: string
           fundingSourceNetwork: CreditCardNetwork
           virtualCardAmount: {
@@ -1278,6 +1288,11 @@ export const TransactionDetailFragmentDoc = {
           },
           {
             kind: 'Field',
+            name: { kind: 'Name', value: 'transactedAtEpochMs' },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'settledAtEpochMs' } },
+          {
+            kind: 'Field',
             name: { kind: 'Name', value: 'fundingSourceLast4' },
           },
           {
@@ -1511,6 +1526,11 @@ export const TransactionFragmentDoc = {
               ],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'transactedAtEpochMs' },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'settledAtEpochMs' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'fundingSourceLast4' },
@@ -2203,6 +2223,11 @@ export const SearchVirtualCardsTransactionsDocument = {
               ],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'transactedAtEpochMs' },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'settledAtEpochMs' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'fundingSourceLast4' },

@@ -12,6 +12,8 @@ fragment TransactionDetail on TransactionDetail {
   fundingSourceAmount {
     ...UserCurrencyAmount
   }
+  transactedAtEpochMs
+  settledAtEpochMs
   fundingSourceLast4
   fundingSourceNetwork
 }

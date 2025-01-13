@@ -34,6 +34,12 @@ export class TransactionDetailTransformer {
       serviceFee: graphql.serviceFee,
       fundingSourceId: graphql.fundingSourceId,
       fundingSourceAmount: graphql.fundingSourceAmount,
+      transactedAt: graphql?.transactedAtEpochMs
+        ? new Date(graphql.transactedAtEpochMs)
+        : undefined,
+      settledAt: graphql?.settledAtEpochMs
+        ? new Date(graphql.settledAtEpochMs)
+        : undefined,
       fundingSourceLast4: graphql.fundingSourceLast4,
       fundingSourceNetwork: CreditCardNetworkTransformer.toEntity(
         graphql.fundingSourceNetwork,
@@ -59,6 +65,8 @@ export class TransactionDetailTransformer {
       serviceFee: entity.serviceFee,
       fundingSourceId: entity.fundingSourceId,
       fundingSourceAmount: entity.fundingSourceAmount,
+      transactedAtEpochMs: entity.transactedAt?.getTime(),
+      settledAtEpochMs: entity.settledAt?.getTime(),
       fundingSourceLast4: entity.fundingSourceLast4,
       fundingSourceNetwork: CreditCardNetworkTransformer.toGraphQL(
         entity.fundingSourceNetwork,

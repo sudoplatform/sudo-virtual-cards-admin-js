@@ -39,6 +39,14 @@ export interface TransactionDetail {
    */
   fundingSourceAmount: UserCurrencyAmount
   /**
+   * Date at which the transaction detail transacted at the funding source provider
+   */
+  transactedAt?: Date
+  /**
+   * Date at which the transaction detail was settled with the funding source provider
+   */
+  settledAt?: Date
+  /**
    * Last 4 digits of a user's credit card.
    */
   fundingSourceLast4: string

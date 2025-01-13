@@ -487,6 +487,16 @@ type TransactionDetail {
   fundingSourceAmount: UserCurrencyAmount!
 
   """
+  Timestamp at which this detail charge was transacted at the funding source provider
+  """
+  transactedAtEpochMs: Float
+
+  """
+  Timestamp at which this detail charge was settled with the funding source provider
+  """
+  settledAtEpochMs: Float
+
+  """
   Last 4 digits of a user's credit card.
   """
   fundingSourceLast4: String!

@@ -127,6 +127,8 @@ export class GraphQLDataFactory {
     fundingSourceId: 'fundingSourceId',
     serviceFee: this.userCurrencyAmount,
     fundingSourceAmount: this.userCurrencyAmount,
+    transactedAtEpochMs: new Date(1.0).getTime(),
+    settledAtEpochMs: new Date(2.0).getTime(),
     fundingSourceLast4: '1234',
     fundingSourceNetwork: CreditCardNetwork.Visa,
   }
