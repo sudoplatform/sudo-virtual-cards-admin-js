@@ -20,7 +20,7 @@ import { VirtualCardTransformer } from '../data/transformers/virtualCardTransfor
 import { TransactionResponseTransformer } from '../data/transformers/transactionResponseTransformer'
 import { FundingSourceTransformer } from '../data/transformers/fundingSourceTransformer/fundingSourceTransformer'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DefaultSudoVirtualCardsAdminClientOptions {}
 
 export interface SudoVirtualCardsAdminClient {
@@ -156,9 +156,8 @@ export class DefaultVirtualCardsAdminClient
       nextToken: request.nextToken,
     }
 
-    const result = await this.adminApiClient.searchVirtualCardsTransactions(
-      input,
-    )
+    const result =
+      await this.adminApiClient.searchVirtualCardsTransactions(input)
 
     return TransactionResponseTransformer.toEntity(result)
   }

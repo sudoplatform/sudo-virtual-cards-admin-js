@@ -13,7 +13,6 @@ import { FundingSourceFlags } from './fundingSourceFlags'
 /**
  * Domain-level representation of an admin Credit Card Funding Source.
  *
- * @export
  * @interface CreditCardFundingSource
  */
 export interface CreditCardFundingSource extends CommonObject {
@@ -38,7 +37,6 @@ export interface CreditCardFundingSource extends CommonObject {
    * source itself.
    *
    * @type {string}
-   * @memberof FundingSource
    */
   fingerprint: string
   /**

@@ -12,7 +12,6 @@ import { Transaction } from './transaction'
  * Used to keep a list of Transactions and a nextToken to
  * support pagination.
  *
- * @export
  * @interface TansactionConnection
  */
 export interface TransactionConnection {

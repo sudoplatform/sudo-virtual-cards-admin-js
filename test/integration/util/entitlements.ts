@@ -37,9 +37,11 @@ export class EntitlementsBuilder {
 
   async apply(): Promise<void> {
     if (!this.entitlementsClient) {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw 'Entitlements client not set'
     }
     if (!this.entitlementsAdminClient) {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw 'Entitlements admin client not set'
     }
     const externalId = await this.entitlementsClient.getExternalId()

@@ -7,7 +7,6 @@
 /**
  * Depicts the card network of a funding card.
  *
- * @export
  * @enum {string}
  */
 export enum CreditCardNetwork {

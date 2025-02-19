@@ -11,7 +11,6 @@
  *            all of the user's funding sources.
  * REFRESH -  Funding source requires a provider-specific refresh.
  *
- * @export
  * @enum FundingSourceFlags
  */
 export enum FundingSourceFlags {

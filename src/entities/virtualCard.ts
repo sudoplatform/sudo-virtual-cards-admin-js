@@ -11,7 +11,6 @@ import { Owner } from './owner'
 /**
  * Domain-level representation of a VirtualCard type.
  *
- * @export
  * @interface VirtualCard
  */
 export interface VirtualCard extends CommonObject {

@@ -10,7 +10,6 @@ import { TransactionConnection } from './transactionConnection'
 /**
  * Domain-level representation of a TransactionResponse.
  *
- * @export
  * @interface TransactionResponse
  */
 export interface TransactionResponse {

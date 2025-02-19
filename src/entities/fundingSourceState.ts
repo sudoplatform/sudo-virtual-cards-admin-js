@@ -14,7 +14,6 @@
  *
  * Once Inactive, they cannot be made Active again.
  *
- * @export
  * @enum FundingSourceState
  */
 export enum FundingSourceState {

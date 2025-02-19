@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable tree-shaking/no-side-effects-in-initialization */
-
 import {
   BankAccountFundingSource,
   BankAccountType,

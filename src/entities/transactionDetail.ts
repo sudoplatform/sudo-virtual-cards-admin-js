@@ -14,7 +14,6 @@ import { UserCurrencyAmount } from './userCurrencyAmount'
  * Depending on transaction type will detail
  * things like fees, real credit card transaction details etc.
  *
- * @export
  * @interface TransactionDetail
  */
 export interface TransactionDetail {

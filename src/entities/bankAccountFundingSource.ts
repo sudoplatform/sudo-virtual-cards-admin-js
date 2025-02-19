@@ -14,7 +14,6 @@ import { UserCurrencyAmount } from './userCurrencyAmount'
 /**
  * Domain-level representation of an admin Bank Account Funding Source.
  *
- * @export
  * @interface BankAccountFundingSource
  */
 export interface BankAccountFundingSource extends CommonObject {
