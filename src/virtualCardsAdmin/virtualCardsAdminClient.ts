@@ -86,9 +86,7 @@ export interface SudoVirtualCardsAdminClient {
   ) => Promise<TransactionResponse>
 }
 
-export class DefaultVirtualCardsAdminClient
-  implements SudoVirtualCardsAdminClient
-{
+export class DefaultVirtualCardsAdminClient implements SudoVirtualCardsAdminClient {
   private readonly adminApiClient: AdminApiClient
 
   public constructor(

@@ -5,18 +5,17 @@
  */
 
 import {
-  AppSyncError,
   ConfigurationManager,
   DefaultConfigurationManager,
   DefaultLogger,
   FatalError,
+  GraphQLNetworkError,
+  isGraphQLNetworkError,
   Logger,
+  mapNetworkErrorToClientError,
   UnknownGraphQLError,
 } from '@sudoplatform/sudo-common'
-import { NormalizedCacheObject } from 'apollo-cache-inmemory'
-import { ApolloError, MutationOptions, QueryOptions } from 'apollo-client'
-import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
-import { AuthOptions } from 'aws-appsync-auth-link'
+import { GraphQLOptions } from '@aws-amplify/api-graphql'
 import * as t from 'io-ts'
 import { ErrorTransformer } from '../data/transformers/errorTransformer/errorTransformer'
 import {
@@ -40,14 +39,18 @@ import {
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
+import {
+  GraphQLClient,
+  GraphQLClientAuthMode,
+  GraphQLClientOptions,
+  internal,
+} from '@sudoplatform/sudo-user'
 
 export interface AdminApiClientProps {
   apiKey: string
   region: string
   graphqlUrl: string
 }
-
-const queryFetchPolicy = 'network-only'
 
 // eslint-disable-next-line tree-shaking/no-side-effects-in-initialization
 export const AdminConsoleProject = t.type({
@@ -65,7 +68,9 @@ export type AdminConsoleProject = t.TypeOf<typeof AdminConsoleProject>
  * externally so we enable IAM auth by making 'IAM' a special
  * API key value.
  */
-function getAuthOptions(apiKey: string): AuthOptions {
+function getAuthOptions(
+  apiKey: string,
+): Omit<GraphQLClientOptions, 'graphqlUrl' | 'region'> {
   if (apiKey === 'IAM') {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
@@ -73,7 +78,7 @@ function getAuthOptions(apiKey: string): AuthOptions {
 
     if (accessKeyId && secretAccessKey) {
       return {
-        type: AUTH_TYPE.AWS_IAM,
+        authMode: GraphQLClientAuthMode.IAM,
         credentials: {
           accessKeyId,
           secretAccessKey,
@@ -82,24 +87,23 @@ function getAuthOptions(apiKey: string): AuthOptions {
       }
     } else {
       return {
-        type: AUTH_TYPE.AWS_IAM,
-        credentials: null,
+        authMode: GraphQLClientAuthMode.IAM,
       }
     }
   } else {
-    return { type: AUTH_TYPE.API_KEY, apiKey }
+    return { authMode: GraphQLClientAuthMode.ApiKey, apiKey }
   }
 }
 
 export class AdminApiClient {
   private readonly log: Logger
   private readonly configurationManager: ConfigurationManager
-  private readonly client: AWSAppSyncClient<NormalizedCacheObject>
+  private readonly client: GraphQLClient
 
   public constructor(
     apiKey: string,
     configurationManager?: ConfigurationManager,
-    client?: AWSAppSyncClient<NormalizedCacheObject>,
+    client?: GraphQLClient,
   ) {
     this.log = new DefaultLogger(this.constructor.name)
     this.configurationManager =
@@ -111,11 +115,10 @@ export class AdminApiClient {
 
     this.client =
       client ??
-      new AWSAppSyncClient<NormalizedCacheObject>({
-        url: config.apiUrl,
+      new internal.AmplifyClient({
+        graphqlUrl: config.apiUrl,
         region: config.region,
-        auth: getAuthOptions(apiKey),
-        disableOffline: true,
+        ...getAuthOptions(apiKey),
       })
   }
 
@@ -125,7 +128,6 @@ export class AdminApiClient {
     const data = await this.performQuery<GetVirtualCardsActiveQuery>({
       query: GetVirtualCardsActiveDocument,
       variables: { input },
-      fetchPolicy: queryFetchPolicy,
     })
     return data.getVirtualCardsActive
   }
@@ -136,7 +138,6 @@ export class AdminApiClient {
     const data = await this.performQuery<ListFundingSourcesBySubQuery>({
       query: ListFundingSourcesBySubDocument,
       variables: { input },
-      fetchPolicy: queryFetchPolicy,
     })
     return data.listFundingSourcesBySub
   }
@@ -147,7 +148,6 @@ export class AdminApiClient {
     const data = await this.performQuery<ListVirtualCardsBySubQuery>({
       query: ListVirtualCardsBySubDocument,
       variables: { input },
-      fetchPolicy: queryFetchPolicy,
     })
     return data.listVirtualCardsBySub
   }
@@ -158,7 +158,6 @@ export class AdminApiClient {
     const data = await this.performQuery<ListVirtualCardsBySudoQuery>({
       query: ListVirtualCardsBySudoDocument,
       variables: { input },
-      fetchPolicy: queryFetchPolicy,
     })
     return data.listVirtualCardsBySudo
   }
@@ -169,38 +168,30 @@ export class AdminApiClient {
     const data = await this.performQuery<SearchVirtualCardsTransactionsQuery>({
       query: SearchVirtualCardsTransactionsDocument,
       variables: { input },
-      fetchPolicy: queryFetchPolicy,
     })
     return data.searchVirtualCardsTransactions
   }
 
   async performQuery<Q>({
     variables,
-    fetchPolicy,
     query,
     calleeName,
-  }: QueryOptions & { calleeName?: string }): Promise<Q> {
+  }: GraphQLOptions & { calleeName?: string }): Promise<Q> {
     let result
     try {
       result = await this.client.query<Q>({
         variables,
-        fetchPolicy,
         query,
       })
     } catch (err: unknown) {
-      const clientError = err as ApolloError
-      this.log.debug('error received', { calleeName, clientError })
-      const error = clientError.graphQLErrors?.[0]
-      if (error) {
-        this.log.debug('appSync query failed with error', { error })
-        throw ErrorTransformer.toClientError(error)
-      } else {
-        throw new UnknownGraphQLError(err)
+      if (isGraphQLNetworkError(err as Error)) {
+        throw mapNetworkErrorToClientError(err as GraphQLNetworkError)
       }
+      throw this.mapGraphQLCallError(err as Error)
     }
     const error = result.errors?.[0]
     if (error) {
-      this.log.debug('error received', { error })
+      this.log.debug('appsync query failed with error', { error })
       throw ErrorTransformer.toClientError(error)
     }
     if (result.data) {
@@ -216,7 +207,8 @@ export class AdminApiClient {
     mutation,
     variables,
     calleeName,
-  }: Omit<MutationOptions<M>, 'fetchPolicy'> & {
+  }: Omit<GraphQLOptions, 'query'> & {
+    mutation: GraphQLOptions['query']
     calleeName?: string
   }): Promise<M> {
     let result
@@ -226,15 +218,10 @@ export class AdminApiClient {
         variables,
       })
     } catch (err) {
-      const clientError = err as ApolloError
-      this.log.debug('error received', { calleeName, clientError })
-      const error = clientError.graphQLErrors?.[0]
-      if (error) {
-        this.log.debug('appSync mutation failed with error', { error })
-        throw ErrorTransformer.toClientError(error)
-      } else {
-        throw new UnknownGraphQLError(err as AppSyncError)
+      if (isGraphQLNetworkError(err as Error)) {
+        throw mapNetworkErrorToClientError(err as GraphQLNetworkError)
       }
+      throw this.mapGraphQLCallError(err as Error)
     }
     const error = result.errors?.[0]
     if (error) {
@@ -248,5 +235,26 @@ export class AdminApiClient {
         `${calleeName ?? '<no callee>'} did not return any result`,
       )
     }
+  }
+
+  mapGraphQLCallError = (err: Error): Error => {
+    if ('graphQLErrors' in err && Array.isArray(err.graphQLErrors)) {
+      const error = err.graphQLErrors[0] as {
+        errorType: string
+        message: string
+        name: string
+      }
+      if (error) {
+        this.log.debug('appSync operation failed with error', { err })
+        return ErrorTransformer.toClientError(error)
+      }
+    }
+    if ('errorType' in err) {
+      this.log.debug('appSync operation failed with error', { err })
+      return ErrorTransformer.toClientError(
+        err as { errorType: string; message: string; errorInfo?: string },
+      )
+    }
+    return new UnknownGraphQLError(err)
   }
 }

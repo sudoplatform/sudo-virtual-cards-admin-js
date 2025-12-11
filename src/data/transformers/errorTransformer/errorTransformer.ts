@@ -5,15 +5,20 @@
  */
 
 import {
-  AppSyncError,
   mapGraphQLToClientError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 import { CardNotFoundError, UnknownTimeZoneError } from '../../../global/error'
+import { GraphQLError } from 'graphql'
 
 export class ErrorTransformer {
-  static toClientError(error: AppSyncError): Error {
-    switch (error.errorType) {
+  static toClientError(
+    error:
+      | { errorType: string; errorInfo?: string; message: string }
+      | GraphQLError,
+  ): Error {
+    const errorType = 'errorType' in error ? error.errorType : error.message
+    switch (errorType) {
       case 'DynamoDB:ConditionalCheckFailedException':
         return new VersionMismatchError()
       case 'sudoplatform.UnknownTimeZoneError':

@@ -11,9 +11,6 @@ import {
   IllegalArgumentError,
   UnknownGraphQLError,
 } from '@sudoplatform/sudo-common'
-import { NormalizedCacheObject } from 'apollo-cache-inmemory'
-import { NetworkStatus } from 'apollo-client'
-import { AWSAppSyncClient } from 'aws-appsync'
 import { GraphQLError } from 'graphql'
 import {
   anything,
@@ -49,6 +46,7 @@ import {
 import { CardNotFoundError, UnknownTimeZoneError } from '../global/error'
 import { AdminApiClient, AdminConsoleProject } from './adminApiClient'
 import { GraphQLDataFactory } from '../util/data-factory/graphQl'
+import { GraphQLClient } from '@sudoplatform/sudo-user'
 
 describe('\nadminApiClient tests', () => {
   const adminApiKey = 'admin-api-key'
@@ -60,7 +58,7 @@ describe('\nadminApiClient tests', () => {
     clientId: '3svojfatkq6sonb7ium25l7bad',
   }
   const mockConfigurationManager = mock<ConfigurationManager>()
-  const mockClient = mock<AWSAppSyncClient<NormalizedCacheObject>>()
+  const mockClient = mock<GraphQLClient>()
 
   let adminApiClient: AdminApiClient
 
@@ -81,8 +79,6 @@ describe('\nadminApiClient tests', () => {
       instance(mockClient),
     )
   })
-
-  const fetchPolicy = 'network-only'
 
   describe('getVirtualCardsActive tests', () => {
     const now = new Date()
@@ -111,9 +107,6 @@ describe('\nadminApiClient tests', () => {
         data: {
           getVirtualCardsActive: result,
         },
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
@@ -124,7 +117,6 @@ describe('\nadminApiClient tests', () => {
       expect(actualQuery).toEqual({
         query: GetVirtualCardsActiveDocument,
         variables: { input: request },
-        fetchPolicy,
       })
       verify(mockClient.query(anything())).once()
     })
@@ -185,9 +177,6 @@ describe('\nadminApiClient tests', () => {
       ).thenResolve({
         errors: [error],
         data: null as unknown as GetVirtualCardsActiveQuery,
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
@@ -212,9 +201,6 @@ describe('\nadminApiClient tests', () => {
         data: {
           listFundingSourcesBySub: result,
         },
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
@@ -225,7 +211,6 @@ describe('\nadminApiClient tests', () => {
       expect(actualQuery).toEqual({
         query: ListFundingSourcesBySubDocument,
         variables: { input: request },
-        fetchPolicy,
       })
 
       verify(mockClient.query(anything())).once()
@@ -291,9 +276,6 @@ describe('\nadminApiClient tests', () => {
         data: {
           listVirtualCardsBySub: result,
         },
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
@@ -304,7 +286,6 @@ describe('\nadminApiClient tests', () => {
       expect(actualQuery).toEqual({
         query: ListVirtualCardsBySubDocument,
         variables: { input: request },
-        fetchPolicy,
       })
 
       verify(mockClient.query(anything())).once()
@@ -370,9 +351,6 @@ describe('\nadminApiClient tests', () => {
         data: {
           listVirtualCardsBySudo: result,
         },
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
@@ -383,7 +361,6 @@ describe('\nadminApiClient tests', () => {
       expect(actualQuery).toEqual({
         query: ListVirtualCardsBySudoDocument,
         variables: { input: request },
-        fetchPolicy,
       })
 
       verify(mockClient.query(anything())).once()
@@ -460,9 +437,6 @@ describe('\nadminApiClient tests', () => {
         data: {
           searchVirtualCardsTransactions: result,
         },
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
@@ -473,7 +447,6 @@ describe('\nadminApiClient tests', () => {
       expect(actualQuery).toEqual({
         query: SearchVirtualCardsTransactionsDocument,
         variables: { input: request },
-        fetchPolicy,
       })
 
       verify(mockClient.query(anything())).once()
@@ -534,9 +507,6 @@ describe('\nadminApiClient tests', () => {
       ).thenResolve({
         errors: [error],
         data: null as unknown as SearchVirtualCardsTransactionsQuery,
-        loading: false,
-        stale: false,
-        networkStatus: NetworkStatus.ready,
       })
 
       await expect(
