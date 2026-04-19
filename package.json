@@ -112,5 +112,57 @@
     "typescript-eslint": "^8.49.0",
     "wait-for-expect": "^4.0.0"
   },
-  "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c"
+  "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c",
+  "auditSuppressions": {
+    "1113153": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser pinned by @aws-sdk — transitive dep"
+    },
+    "1113567": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser 4.4.1 pinned by @aws-sdk/core — transitive dep"
+    },
+    "1113568": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser pinned by @aws-sdk — transitive dep"
+    },
+    "1113569": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser pinned by @aws-sdk — transitive dep"
+    },
+    "1113570": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser 4.4.1 pinned by @aws-sdk/core — transitive dep"
+    },
+    "1114158": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "immutable 3.7.6 pinned by @ardatan/relay-compiler — transitive dep"
+    },
+    "1115338": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser 4.4.1 pinned by @aws-sdk/core — transitive dep"
+    },
+    "1115339": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser pinned by @aws-sdk — transitive dep"
+    },
+    "1116307": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser pinned by @aws-sdk — transitive dep"
+    },
+    "1116308": {
+      "until": 1778626296,
+      "untilISO": "2026-05-12T22:51:36Z",
+      "reason": "fast-xml-parser 4.4.1 pinned by @aws-sdk/core — transitive dep"
+    }
+  }
 }
