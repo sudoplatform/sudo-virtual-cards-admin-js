@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FeeReason } from './feeReason'
 import { Merchant } from './merchant'
 import { TransactionDetail } from './transactionDetail'
 import { TransactionType } from './transactionType'
@@ -47,11 +48,23 @@ export interface Transaction {
   /**
    * Details excluding the name of the merchant.
    */
-  merchant: Merchant
+  merchant?: Merchant
   /**
    * Decline reason if transaction of type DECLINE.
    */
   declineReason?: string
+  /**
+   * Fee reason if transaction of type FEE.
+   */
+  feeReason?: FeeReason
+  /**
+   * ID of transaction causing fee if transaction of type FEE.
+   */
+  causeId?: string
+  /**
+   * ID of fee being refunded if transaction of type FEE_REFUND.
+   */
+  feeId?: string
   /**
    * List of details about this transaction depending on
    * transaction type.

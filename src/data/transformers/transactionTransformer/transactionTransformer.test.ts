@@ -28,6 +28,8 @@ describe('TransactionTransformer tests', () => {
     ${TransactionTypeEntity.Chargeback} | ${TransactionTypeGraphQL.Chargeback}
     ${TransactionTypeEntity.Complete}   | ${TransactionTypeGraphQL.Complete}
     ${TransactionTypeEntity.Decline}    | ${TransactionTypeGraphQL.Decline}
+    ${TransactionTypeEntity.Fee}        | ${TransactionTypeGraphQL.Fee}
+    ${TransactionTypeEntity.FeeRefund}  | ${TransactionTypeGraphQL.FeeRefund}
     ${TransactionTypeEntity.Pending}    | ${TransactionTypeGraphQL.Pending}
     ${TransactionTypeEntity.Refund}     | ${TransactionTypeGraphQL.Refund}
     ${TransactionTypeEntity.Reversal}   | ${TransactionTypeGraphQL.Reversal}
@@ -45,6 +47,8 @@ describe('TransactionTransformer tests', () => {
     ${TransactionTypeGraphQL.Chargeback} | ${TransactionTypeEntity.Chargeback}
     ${TransactionTypeGraphQL.Complete}   | ${TransactionTypeEntity.Complete}
     ${TransactionTypeGraphQL.Decline}    | ${TransactionTypeEntity.Decline}
+    ${TransactionTypeGraphQL.Fee}        | ${TransactionTypeEntity.Fee}
+    ${TransactionTypeGraphQL.FeeRefund}  | ${TransactionTypeEntity.FeeRefund}
     ${TransactionTypeGraphQL.Pending}    | ${TransactionTypeEntity.Pending}
     ${TransactionTypeGraphQL.Refund}     | ${TransactionTypeEntity.Refund}
     ${TransactionTypeGraphQL.Reversal}   | ${TransactionTypeEntity.Reversal}

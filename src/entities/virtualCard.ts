@@ -7,6 +7,7 @@
 import { CardState } from './cardState'
 import { CommonObject } from './commonObject'
 import { Owner } from './owner'
+import { StateReason } from './stateReason'
 
 /**
  * Domain-level representation of a VirtualCard type.
@@ -49,6 +50,10 @@ export interface VirtualCard extends CommonObject {
    * and expiry processing of # virtual cards.
    */
   state: CardState
+  /**
+   * Reason for transition to state.
+   */
+  stateReason: StateReason
   /**
    * Date of which the virtual card will no longer be valid in
    * system.

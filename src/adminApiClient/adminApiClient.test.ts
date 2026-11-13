@@ -23,30 +23,50 @@ import {
 } from 'ts-mockito'
 import {
   CardState,
+  AcceptPendingFundingSourceDocument,
+  AcceptPendingFundingSourceMutation,
+  AcceptPendingFundingSourceRequest,
+  CancelFundingSourceDocument,
+  CancelFundingSourceMutation,
+  CancelFundingSourceRequest,
+  ChargeServiceFeeForVirtualCardDocument,
+  ChargeServiceFeeForVirtualCardMutation,
+  ChargeServiceFeeForVirtualCardInput,
+  RefundServiceFeeForVirtualCardDocument,
+  RefundServiceFeeForVirtualCardMutation,
+  RefundServiceFeeForVirtualCardInput,
+  DeleteVirtualCardsDataDocument,
+  DeleteVirtualCardsDataMutation,
+  DeleteVirtualCardsDataRequest,
+  FeeReason,
+  DeleteProvisionalFundingSourceDocument,
+  DeleteProvisionalFundingSourceMutation,
+  DeleteProvisionalFundingSourceRequest,
   FundingSource,
-  GetVirtualCardsActiveDocument,
-  GetVirtualCardsActiveQuery,
-  GetVirtualCardsActiveRequest,
-  GetVirtualCardsActiveResponse,
   ListFundingSourcesBySubDocument,
   ListFundingSourcesBySubQuery,
   ListFundingSourcesBySubRequest,
+  ListProvisionalFundingSourcesBySubDocument,
+  ListProvisionalFundingSourcesBySubQuery,
+  ListProvisionalFundingSourcesBySubRequest,
   ListVirtualCardsBySubDocument,
   ListVirtualCardsBySubQuery,
   ListVirtualCardsBySubRequest,
   ListVirtualCardsBySudoDocument,
   ListVirtualCardsBySudoQuery,
   ListVirtualCardsBySudoRequest,
+  ProvisionalFundingSource,
   SearchVirtualCardsTransactionsDocument,
   SearchVirtualCardsTransactionsQuery,
   SearchVirtualCardsTransactionsRequest,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
-import { CardNotFoundError, UnknownTimeZoneError } from '../global/error'
+import { CardNotFoundError } from '../global/error'
 import { AdminApiClient, AdminConsoleProject } from './adminApiClient'
 import { GraphQLDataFactory } from '../util/data-factory/graphQl'
-import { GraphQLClient } from '@sudoplatform/sudo-user'
+import { GraphQLClient, GraphQLClientAuthMode } from '@sudoplatform/sudo-user'
+import { SudoVirtualCardsAdminAuth } from '../virtualCardsAdmin/virtualCardsAdminClient'
 
 describe('\nadminApiClient tests', () => {
   const adminApiKey = 'admin-api-key'
@@ -80,108 +100,117 @@ describe('\nadminApiClient tests', () => {
     )
   })
 
-  describe('getVirtualCardsActive tests', () => {
-    const now = new Date()
-    const startDate = now.toString()
-    const endDate = now.toString()
-    const timeZone = 'Australia/Brisbane'
+  describe('constructor tests', () => {
+    const endpoint = { graphqlUrl: 'https://example.com/graphql', region: 'x' }
 
-    const request: GetVirtualCardsActiveRequest = {
-      startDate,
-      endDate,
-      timeZone,
-    }
+    it('does not consult config when endpoint supplied', () => {
+      reset(mockConfigurationManager)
+      new AdminApiClient(
+        adminApiKey,
+        instance(mockConfigurationManager),
+        instance(mockClient),
+        { endpoint },
+      )
+      verify(
+        mockConfigurationManager.bindConfigSet(anything(), anything()),
+      ).never()
+    })
 
-    const result: GetVirtualCardsActiveResponse = {
-      __typename: 'GetVirtualCardsActiveResponse',
-      activeCards: [1],
-      startDate,
-      endDate,
-      timeZone,
-    }
+    it('uses adminConsoleProjectService config when endpoint omitted', () => {
+      verify(
+        mockConfigurationManager.bindConfigSet(
+          anything(),
+          'adminConsoleProjectService',
+        ),
+      ).once()
+    })
 
-    it('should return results', async () => {
-      when(
-        mockClient.query<GetVirtualCardsActiveQuery>(anything()),
-      ).thenResolve({
-        data: {
-          getVirtualCardsActive: result,
+    it('warns in a browser when using long-lived credentials', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      vi.stubGlobal('window', { document: {} })
+      try {
+        const make = (auth: string | SudoVirtualCardsAdminAuth): void => {
+          new AdminApiClient(
+            auth,
+            instance(mockConfigurationManager),
+            instance(mockClient),
+          )
+        }
+        make({ type: 'token', tokenProvider: 'token' })
+        make({ type: 'iam' })
+        expect(warn).not.toHaveBeenCalled()
+        make({ type: 'apiKey', apiKey: 'k' })
+        make('k')
+        make({
+          type: 'iam',
+          credentials: { accessKeyId: 'a', secretAccessKey: 's' },
+        })
+        expect(warn).toHaveBeenCalledTimes(3)
+      } finally {
+        vi.unstubAllGlobals()
+        warn.mockRestore()
+      }
+    })
+  })
+
+  describe('auth options tests', () => {
+    // Builds a real underlying client and returns the options it received.
+    const clientOptionsFor = (
+      auth: string | SudoVirtualCardsAdminAuth,
+    ): { authMode?: unknown; [key: string]: unknown } =>
+      (
+        new AdminApiClient(
+          auth,
+          instance(mockConfigurationManager),
+        ) as unknown as {
+          client: { options: { authMode?: unknown } }
+        }
+      ).client.options
+
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('maps each auth type', () => {
+      const tokenProvider = (): string => 'token'
+      const credentials = { accessKeyId: 'a', secretAccessKey: 's' }
+      expect(clientOptionsFor({ type: 'apiKey', apiKey: 'k' })).toMatchObject({
+        authMode: GraphQLClientAuthMode.ApiKey,
+        apiKey: 'k',
+      })
+      expect(clientOptionsFor({ type: 'iam', credentials })).toMatchObject({
+        authMode: GraphQLClientAuthMode.IAM,
+        credentials,
+      })
+      expect(clientOptionsFor({ type: 'token', tokenProvider })).toMatchObject({
+        authMode: GraphQLClientAuthMode.OpenIDConnect,
+        tokenProvider,
+      })
+    })
+
+    it('treats a bare string as an API key', () => {
+      expect(clientOptionsFor('k')).toMatchObject({
+        authMode: GraphQLClientAuthMode.ApiKey,
+        apiKey: 'k',
+      })
+    })
+
+    it("treats the legacy 'IAM' string as IAM using env credentials", () => {
+      vi.stubEnv('AWS_ACCESS_KEY_ID', 'id')
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'secret')
+      vi.stubEnv('AWS_SESSION_TOKEN', 'session')
+      expect(clientOptionsFor('IAM')).toMatchObject({
+        authMode: GraphQLClientAuthMode.IAM,
+        credentials: {
+          accessKeyId: 'id',
+          secretAccessKey: 'secret',
+          sessionToken: 'session',
         },
       })
-
-      await expect(
-        adminApiClient.getVirtualCardsActive(request),
-      ).resolves.toEqual(result)
-
-      const [actualQuery] = capture(mockClient.query as any).first()
-      expect(actualQuery).toEqual({
-        query: GetVirtualCardsActiveDocument,
-        variables: { input: request },
-      })
-      verify(mockClient.query(anything())).once()
-    })
-
-    it('should throw fatal error when no result data is returned', async () => {
-      const error = new FatalError(
-        'getVirtualCardsActive did not return any result.',
-      )
-
-      when(mockClient.query<GetVirtualCardsActiveQuery>(anything())).thenReject(
-        error,
-      )
-
-      await expect(
-        adminApiClient.getVirtualCardsActive(request),
-      ).rejects.toEqual(
-        new FatalError('getVirtualCardsActive did not return any result.'),
-      )
-    })
-
-    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
-      const error = new Error()
-
-      when(mockClient.query<GetVirtualCardsActiveQuery>(anything())).thenReject(
-        error,
-      )
-
-      await expect(
-        adminApiClient.getVirtualCardsActive(anything()),
-      ).rejects.toEqual(new UnknownGraphQLError(error))
-    })
-
-    it('should throw `IllegalArgumentError` when invalid argument received', async () => {
-      const invalidRequest = {
-        invalid: 'argument',
-      } as unknown as GetVirtualCardsActiveRequest
-      const error = new IllegalArgumentError()
-
-      when(mockClient.query<GetVirtualCardsActiveQuery>(anything())).thenReject(
-        error,
-      )
-
-      await expect(
-        adminApiClient.getVirtualCardsActive(invalidRequest),
-      ).rejects.toThrow(error)
-    })
-
-    it('should throw `UnknownTimeZoneError` when unknown timezone given', async () => {
-      const invalidRequest = {
-        ...request,
-        timeZone: 'not-a-timezone',
-      }
-      const error: GraphQLError = new GraphQLError('')
-      ;(error as AppSyncError).errorType = 'sudoplatform.UnknownTimeZoneError'
-
-      when(
-        mockClient.query<GetVirtualCardsActiveQuery>(anything()),
-      ).thenResolve({
-        errors: [error],
-        data: null as unknown as GetVirtualCardsActiveQuery,
-      })
-
-      await expect(
-        adminApiClient.getVirtualCardsActive(invalidRequest),
-      ).rejects.toEqual(new UnknownTimeZoneError())
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', '')
+      const options = clientOptionsFor('IAM')
+      expect(options.authMode).toBe(GraphQLClientAuthMode.IAM)
+      expect(options.credentials).toBeUndefined()
     })
   })
 
@@ -200,7 +229,7 @@ describe('\nadminApiClient tests', () => {
       ).thenResolve({
         data: {
           listFundingSourcesBySub: result,
-        },
+        } as ListFundingSourcesBySubQuery,
       })
 
       await expect(
@@ -227,9 +256,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.listFundingSourcesBySub(request),
-      ).rejects.toEqual(
-        new FatalError('listFundingSourcesBySub did not return any result.'),
-      )
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
 
     it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
@@ -256,7 +283,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.listFundingSourcesBySub(invalidRequest),
-      ).rejects.toThrow(error)
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
   })
 
@@ -275,7 +302,7 @@ describe('\nadminApiClient tests', () => {
       ).thenResolve({
         data: {
           listVirtualCardsBySub: result,
-        },
+        } as ListVirtualCardsBySubQuery,
       })
 
       await expect(
@@ -302,9 +329,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.listVirtualCardsBySub(request),
-      ).rejects.toEqual(
-        new FatalError('listVirtualCardsBySub did not return any result.'),
-      )
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
 
     it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
@@ -331,7 +356,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.listVirtualCardsBySub(invalidRequest),
-      ).rejects.toThrow(error)
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
   })
 
@@ -350,7 +375,7 @@ describe('\nadminApiClient tests', () => {
       ).thenResolve({
         data: {
           listVirtualCardsBySudo: result,
-        },
+        } as ListVirtualCardsBySudoQuery,
       })
 
       await expect(
@@ -377,9 +402,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.listVirtualCardsBySudo(request),
-      ).rejects.toEqual(
-        new FatalError('listVirtualCardsBySudo did not return any result.'),
-      )
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
 
     it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
@@ -406,7 +429,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.listVirtualCardsBySudo(invalidRequest),
-      ).rejects.toThrow(error)
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
   })
 
@@ -436,7 +459,7 @@ describe('\nadminApiClient tests', () => {
       ).thenResolve({
         data: {
           searchVirtualCardsTransactions: result,
-        },
+        } as SearchVirtualCardsTransactionsQuery,
       })
 
       await expect(
@@ -463,11 +486,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.searchVirtualCardsTransactions(request),
-      ).rejects.toEqual(
-        new FatalError(
-          'searchVirtualCardsTransactions did not return any result.',
-        ),
-      )
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
 
     it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
@@ -494,7 +513,7 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.searchVirtualCardsTransactions(invalidRequest),
-      ).rejects.toThrow(error)
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
 
     it('should throw `CardNotFoundError` if card not found in transactions search', async () => {
@@ -512,6 +531,315 @@ describe('\nadminApiClient tests', () => {
       await expect(
         adminApiClient.searchVirtualCardsTransactions(request),
       ).rejects.toEqual(new CardNotFoundError())
+    })
+  })
+
+  describe('listProvisionalFundingSourcesBySub tests', () => {
+    const request: ListProvisionalFundingSourcesBySubRequest = {
+      sub: 'mock-sub',
+    }
+
+    const result: ProvisionalFundingSource[] = [
+      GraphQLDataFactory.provisionalFundingSource,
+    ]
+
+    it('should return results', async () => {
+      when(
+        mockClient.query<ListProvisionalFundingSourcesBySubQuery>(anything()),
+      ).thenResolve({
+        data: {
+          listProvisionalFundingSourcesBySub: result,
+        } as ListProvisionalFundingSourcesBySubQuery,
+      })
+
+      await expect(
+        adminApiClient.listProvisionalFundingSourcesBySub(request),
+      ).resolves.toEqual(result)
+
+      const [actualQuery] = capture(mockClient.query as any).first()
+      expect(actualQuery).toEqual({
+        query: ListProvisionalFundingSourcesBySubDocument,
+        variables: { input: request },
+      })
+
+      verify(mockClient.query(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+
+      when(
+        mockClient.query<ListProvisionalFundingSourcesBySubQuery>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.listProvisionalFundingSourcesBySub(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+
+    it('should throw `IllegalArgumentError` when invalid argument received', async () => {
+      const invalidRequest = {
+        invalid: 'argument',
+      } as unknown as ListProvisionalFundingSourcesBySubRequest
+      const error = new IllegalArgumentError()
+
+      when(
+        mockClient.query<ListProvisionalFundingSourcesBySubQuery>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.listProvisionalFundingSourcesBySub(invalidRequest),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+  })
+
+  describe('deleteProvisionalFundingSource tests', () => {
+    const request: DeleteProvisionalFundingSourceRequest = {
+      id: 'dummyProvisionalFundingSourceId',
+    }
+
+    it('should return the deleted id', async () => {
+      when(
+        mockClient.mutate<DeleteProvisionalFundingSourceMutation>(anything()),
+      ).thenResolve({
+        data: {
+          deleteProvisionalFundingSource: {
+            id: 'dummyProvisionalFundingSourceId',
+          },
+        },
+      })
+
+      await expect(
+        adminApiClient.deleteProvisionalFundingSource(request),
+      ).resolves.toEqual('dummyProvisionalFundingSourceId')
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: DeleteProvisionalFundingSourceDocument,
+        variables: { input: request },
+      })
+
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+
+      when(
+        mockClient.mutate<DeleteProvisionalFundingSourceMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.deleteProvisionalFundingSource(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+
+    it('should throw `FatalError` when no result data is returned', async () => {
+      when(
+        mockClient.mutate<DeleteProvisionalFundingSourceMutation>(anything()),
+      ).thenResolve({})
+
+      await expect(
+        adminApiClient.deleteProvisionalFundingSource(request),
+      ).rejects.toBeInstanceOf(FatalError)
+    })
+  })
+
+  describe('acceptPendingFundingSource tests', () => {
+    const request: AcceptPendingFundingSourceRequest = {
+      id: 'dummyId',
+      identityOptions: { fingerprint: 'fp' },
+      updateCardFundingSource: false,
+    }
+    const result = GraphQLDataFactory.bankAccountFundingSource
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<AcceptPendingFundingSourceMutation>(anything()),
+      ).thenResolve({
+        data: {
+          acceptPendingFundingSource: result,
+        } as AcceptPendingFundingSourceMutation,
+      })
+
+      await expect(
+        adminApiClient.acceptPendingFundingSource(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: AcceptPendingFundingSourceDocument,
+        variables: { input: request },
+      })
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+      when(
+        mockClient.mutate<AcceptPendingFundingSourceMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.acceptPendingFundingSource(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+  })
+
+  describe('cancelFundingSource tests', () => {
+    const request: CancelFundingSourceRequest = { id: 'dummyId' }
+    const result = GraphQLDataFactory.bankAccountFundingSource
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<CancelFundingSourceMutation>(anything()),
+      ).thenResolve({
+        data: { cancelFundingSource: result } as CancelFundingSourceMutation,
+      })
+
+      await expect(
+        adminApiClient.cancelFundingSource(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: CancelFundingSourceDocument,
+        variables: { input: request },
+      })
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+      when(
+        mockClient.mutate<CancelFundingSourceMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(adminApiClient.cancelFundingSource(request)).rejects.toEqual(
+        new UnknownGraphQLError(error),
+      )
+    })
+  })
+
+  describe('chargeServiceFeeForVirtualCard tests', () => {
+    const request: ChargeServiceFeeForVirtualCardInput = {
+      feeReason: FeeReason.InsufficientFunds,
+      causeId: 'dummyCauseId',
+      amount: { currency: 'USD', amount: 1 },
+    }
+    const result = GraphQLDataFactory.transaction
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<ChargeServiceFeeForVirtualCardMutation>(anything()),
+      ).thenResolve({
+        data: {
+          chargeServiceFeeForVirtualCard: result,
+        } as ChargeServiceFeeForVirtualCardMutation,
+      })
+
+      await expect(
+        adminApiClient.chargeServiceFeeForVirtualCard(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: ChargeServiceFeeForVirtualCardDocument,
+        variables: { input: request },
+      })
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+      when(
+        mockClient.mutate<ChargeServiceFeeForVirtualCardMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.chargeServiceFeeForVirtualCard(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+  })
+
+  describe('refundServiceFeeForVirtualCard tests', () => {
+    const request: RefundServiceFeeForVirtualCardInput = {
+      feeId: 'dummyFeeId',
+      amount: { currency: 'USD', amount: 1 },
+    }
+    const result = GraphQLDataFactory.transaction
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<RefundServiceFeeForVirtualCardMutation>(anything()),
+      ).thenResolve({
+        data: {
+          refundServiceFeeForVirtualCard: result,
+        } as RefundServiceFeeForVirtualCardMutation,
+      })
+
+      await expect(
+        adminApiClient.refundServiceFeeForVirtualCard(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: RefundServiceFeeForVirtualCardDocument,
+        variables: { input: request },
+      })
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+      when(
+        mockClient.mutate<RefundServiceFeeForVirtualCardMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.refundServiceFeeForVirtualCard(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+  })
+
+  describe('deleteVirtualCardsData tests', () => {
+    const request: DeleteVirtualCardsDataRequest = {
+      owner: 'dummyOwner',
+      deletionType: 'dummyType',
+      inactiveSinceEpochMs: 1,
+    }
+    const result = { status: 'dummyStatus' }
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<DeleteVirtualCardsDataMutation>(anything()),
+      ).thenResolve({
+        data: {
+          deleteVirtualCardsData: result,
+        },
+      })
+
+      await expect(
+        adminApiClient.deleteVirtualCardsData(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: DeleteVirtualCardsDataDocument,
+        variables: { input: request },
+      })
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+      when(
+        mockClient.mutate<DeleteVirtualCardsDataMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.deleteVirtualCardsData(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
     })
   })
 })

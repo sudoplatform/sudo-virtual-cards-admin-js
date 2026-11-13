@@ -1,0 +1,7 @@
+query listProvisionalFundingSourcesBySub(
+  $input: ListProvisionalFundingSourcesBySubRequest!
+) {
+  listProvisionalFundingSourcesBySub(input: $input) {
+    ...ProvisionalFundingSource
+  }
+}

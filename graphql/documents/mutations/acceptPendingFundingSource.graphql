@@ -1,0 +1,7 @@
+mutation acceptPendingFundingSource(
+  $input: AcceptPendingFundingSourceRequest!
+) {
+  acceptPendingFundingSource(input: $input) {
+    ...AdminFundingSource
+  }
+}

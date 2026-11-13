@@ -39,10 +39,6 @@ export interface BankAccountFundingSource extends CommonObject {
    */
   fingerprint: string
   /**
-   * Last 4 digits of bank account number.
-   */
-  last4: string
-  /**
    * Bank account type.
    */
   bankAccountType: BankAccountType

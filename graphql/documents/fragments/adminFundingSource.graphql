@@ -23,7 +23,6 @@ fragment BankAccountFundingSource on BankAccountFundingSource {
   flags
   currency
   fingerprint
-  last4
   bankAccountType
   authorization {
     content

@@ -12,10 +12,14 @@ import {
   CreditCardFundingSource,
   CreditCardNetwork,
   FundingSourceState,
+  FundingSourceType,
   Markup,
   Merchant,
   Owner,
+  ProvisionalFundingSource,
+  ProvisionalFundingSourceState,
   SignedAuthorizationText,
+  StateReason,
   Transaction,
   TransactionConnection,
   TransactionDetail,
@@ -37,7 +41,6 @@ export class GraphQLDataFactory {
     currency: 'dummyCurrency',
     state: FundingSourceState.Active,
     flags: [],
-    last4: '1234',
     fingerprint: 'fingerprint',
   }
 
@@ -62,6 +65,7 @@ export class GraphQLDataFactory {
     ...this.commonFundingSourceUnsealedProps,
     __typename: 'CreditCardFundingSource',
     version: 1,
+    last4: '1234',
     cardType: CardType.Credit,
     network: CreditCardNetwork.Visa,
   }
@@ -91,9 +95,24 @@ export class GraphQLDataFactory {
     fundingSourceId: 'dummyFundingSourceId',
     currency: 'USD',
     state: CardState.Issued,
+    stateReason: StateReason.User,
     activeToEpochMs: new Date(1).getTime(),
     cancelledAtEpochMs: new Date(1).getTime(),
     last4: '1234',
+  }
+
+  static readonly provisionalFundingSource: ProvisionalFundingSource = {
+    ...this.commonProps,
+    __typename: 'ProvisionalFundingSource',
+    id: 'dummyProvisionalFundingSourceId',
+    version: 1,
+    state: ProvisionalFundingSourceState.Completed,
+    stateReason: StateReason.User,
+    type: FundingSourceType.CreditCard,
+    providerName: 'dummyProviderName',
+    currency: 'USD',
+    last4: '1234',
+    cardType: CardType.Credit,
   }
 
   static readonly markup: Markup = {

@@ -1,5 +1,6 @@
 schema {
   query: Query
+  mutation: Mutation
 }
 
 enum TransactionType {
@@ -9,6 +10,8 @@ enum TransactionType {
   REFUND
   DECLINE
   CHARGEBACK
+  FEE
+  FEE_REFUND
 }
 
 enum CardState {
@@ -29,34 +32,16 @@ enum CreditCardNetwork {
   OTHER
 }
 
-"""
-ACTIVE: Funding source is completely set up and in a state suitable
-for funding virtual card transactions
-
-INACTIVE: Funding source is inactive. Is not usable for funding of new transactions
-but may receive refunds or additional charges on partially complete transactions.
-
-"""
-enum FundingSourceState {
-  ACTIVE
-  INACTIVE
-}
-
-enum FundingSourceFlags {
-  UNFUNDED
-  REFRESH
-}
-enum CardType {
-  CREDIT
-  DEBIT
-  PREPAID
-  OTHER
-}
-
-enum BankAccountType {
-  SAVINGS
-  CHECKING
-  OTHER
+enum StateReason {
+  USER
+  ADMIN
+  ENTITLEMENT
+  LOCKED
+  UNLOCKED
+  SUSPICIOUS
+  PROCESSING
+  DELETION
+  UNKNOWN
 }
 
 """
@@ -67,7 +52,69 @@ type Owner {
   issuer: String!
 }
 
-interface CommonObject {
+"""
+ACTIVE: Funding source is completely set up and in a state suitable
+for funding virtual card transactions
+
+INACTIVE: Funding source is inactive. Is not usable for funding of new transactions
+but may receive refunds or additional charges on partially complete transactions.
+"""
+enum FundingSourceState {
+  ACTIVE
+  INACTIVE
+}
+
+"""
+UNFUNDED: Funding source has been flagged as unusable due to insufficient funds available
+in the funding source. Funding sources with this flag are limited on authorizations due
+to UNFUNDED velocity policy. Funding sources with this flag can be recovered if funds
+are added to the funding source and any outstanding debits retried.
+
+REFRESH: Funding source requires a provider-specific refresh.
+"""
+enum FundingSourceFlags {
+  UNFUNDED
+  REFRESH
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+  PREPAID
+  OTHER
+}
+
+"""
+Type of funding source backing a provisional funding source.
+"""
+enum FundingSourceType {
+  BANK_ACCOUNT
+  CREDIT_CARD
+}
+
+"""
+State of a provisional funding source.
+
+PROVISIONING: Provisional funding source setup has commenced.
+PENDING: Provisional funding source setup is pending review.
+PROVISIONED: Provisional funding source setup has progressed and is ready for completion.
+COMPLETED: Provisional funding source setup is complete.
+FAILED: Provisional funding source is in a failed state.
+"""
+enum ProvisionalFundingSourceState {
+  PROVISIONING
+  PENDING
+  PROVISIONED
+  COMPLETED
+  FAILED
+}
+
+"""
+Admin representation of a provisional funding source. Excludes sensitive
+provisioning/completion material and only exposes attributes useful for
+administrative listing and deletion decisions.
+"""
+type ProvisionalFundingSource {
   """
   ID of the object
   """
@@ -94,12 +141,77 @@ interface CommonObject {
   last updated
   """
   updatedAtEpochMs: Float!
+
+  """
+  State of this provisional funding source.
+  """
+  state: ProvisionalFundingSourceState!
+
+  """
+  Reason for the state of this provisional funding source.
+  """
+  stateReason: StateReason!
+
+  """
+  Type of the funding source being provisioned.
+  """
+  type: FundingSourceType!
+
+  """
+  Name of the funding source provider.
+  """
+  providerName: String!
+
+  """
+  Currency of this provisional funding source.
+  """
+  currency: String!
+
+  """
+  Last four digits of the card after setup completes or fails, if known.
+  """
+  last4: String
+
+  """
+  Type of card, if known.
+  """
+  cardType: CardType
 }
 
-"""
-Funding sources (will implement CommonObject when interface extension is supported)
-"""
-interface CommonFundingSource {
+enum BankAccountType {
+  SAVINGS
+  CHECKING
+  OTHER
+}
+
+type CreditCardFundingSource {
+  """
+  ID of the object
+  """
+  id: ID!
+
+  """
+  ID of the user which owns the object.
+  """
+  owner: ID!
+
+  """
+  Update version of the object
+  """
+  version: Int!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  was created
+  """
+  createdAtEpochMs: Float!
+
+  """
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  last updated
+  """
+  updatedAtEpochMs: Float!
+
   """
   State of funding source
   """
@@ -118,53 +230,6 @@ interface CommonFundingSource {
 
   """
   Fingerprint of the funding source. Used to detect duplicates.
-  """
-  fingerprint: ID!
-}
-
-type CreditCardFundingSource implements CommonObject & CommonFundingSource {
-  """
-  See CommonObject.id
-  """
-  id: ID!
-
-  """
-  See CommonObject.owner
-  """
-  owner: ID!
-
-  """
-  See CommonObject.version
-  """
-  version: Int!
-
-  """
-  See CommonObject.createdAtEpochMs
-  """
-  createdAtEpochMs: Float!
-
-  """
-  See CommonObject.updatedAtEpochMs
-  """
-  updatedAtEpochMs: Float!
-
-  """
-  See CommonFundingSource.state
-  """
-  state: FundingSourceState!
-
-  """
-  See CommonFundingSource.flags
-  """
-  flags: [FundingSourceFlags!]!
-
-  """
-  See CommonFundingSource.currency
-  """
-  currency: String!
-
-  """
-  See CommonFundingSource.fingerprint
   """
   fingerprint: ID!
 
@@ -200,6 +265,7 @@ type SignedAuthorizationText {
   Base64 encoded signature of the data
   """
   signature: String!
+
   """
   Algorithm used to generate the signature.
   """
@@ -227,56 +293,54 @@ type SignedAuthorizationText {
   language: String!
 }
 
-type BankAccountFundingSource implements CommonObject & CommonFundingSource {
+type BankAccountFundingSource {
   """
-  See CommonObject.id
+  ID of the object
   """
   id: ID!
 
   """
-  See CommonObject.owner
+  ID of the user which owns the object.
   """
   owner: ID!
 
   """
-  See CommonObject.version
+  Update version of the object
   """
   version: Int!
 
   """
-  See CommonObject.createdAtEpochMs
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  was created
   """
   createdAtEpochMs: Float!
 
   """
-  See CommonObject.updatedAtEpochMs
+  Time in milliseconds since 1970-01-01T00:00:00Z when object
+  last updated
   """
   updatedAtEpochMs: Float!
 
   """
-  State of funding source.
+  State of funding source
   """
   state: FundingSourceState!
 
   """
-  See CommonFundingSource.flags
+  Flags associated with funding source
   """
   flags: [FundingSourceFlags!]!
 
   """
-  Currency that funding source is denominated in.
+  Billing currency of the funding source as 3 character ISO
+  currency code.
   """
   currency: String!
 
   """
-  The unique fingerprint of the funding source.
+  Fingerprint of the funding source. Used to detect duplicates.
   """
   fingerprint: ID!
-
-  """
-  Last 4 digits of user's bank account number.
-  """
-  last4: String!
 
   """
   Bank account type
@@ -289,7 +353,9 @@ type BankAccountFundingSource implements CommonObject & CommonFundingSource {
   authorization: SignedAuthorizationText!
 
   """
-  The amount by which this funding source is unfunded, if it is unfunded.
+  Defined only if the bank account funding source has the UNFUNDED flag set.
+
+  The amount by which this funding source is unfunded, in the funding source currency.
   """
   unfundedAmount: UserCurrencyAmount
 }
@@ -299,7 +365,7 @@ union FundingSource = CreditCardFundingSource | BankAccountFundingSource
 """
 Admin representation of a virtual card.
 """
-type VirtualCard implements CommonObject {
+type VirtualCard {
   """
   ID of the object
   """
@@ -368,6 +434,11 @@ type VirtualCard implements CommonObject {
   state: CardState!
 
   """
+  Reason for transition to state.
+  """
+  stateReason: StateReason!
+
+  """
   Time since epoch in which the virtual card will no longer be valid in system.
   """
   activeToEpochMs: Float!
@@ -384,6 +455,18 @@ type VirtualCard implements CommonObject {
 }
 
 type UserCurrencyAmount {
+  """
+  Currency of currency amount.
+  """
+  currency: String!
+
+  """
+  Amount of currency amount in currency's decimal unit.
+  """
+  amount: Float!
+}
+
+input UserCurrencyAmountInput {
   """
   Currency of currency amount.
   """
@@ -477,6 +560,16 @@ type TransactionDetail {
   serviceFee: UserCurrencyAmount!
 
   """
+  Time at which transaction detail charge occurred if any
+  """
+  transactedAtEpochMs: Float
+
+  """
+  Time at which transaction detail charge settled (set when state is no longer PENDING)
+  """
+  settledAtEpochMs: Float
+
+  """
   ID of funding source that funded this item.
   """
   fundingSourceId: ID!
@@ -485,16 +578,6 @@ type TransactionDetail {
   Amount charged or refunded to the funding source.
   """
   fundingSourceAmount: UserCurrencyAmount!
-
-  """
-  Timestamp at which this detail charge was transacted at the funding source provider
-  """
-  transactedAtEpochMs: Float
-
-  """
-  Timestamp at which this detail charge was settled with the funding source provider
-  """
-  settledAtEpochMs: Float
 
   """
   Last 4 digits of a user's credit card.
@@ -555,12 +638,27 @@ type Transaction {
   """
   Details excluding the name of the merchant.
   """
-  merchant: Merchant!
+  merchant: Merchant
 
   """
   Decline reason if transaction of type DECLINE.
   """
   declineReason: String
+
+  """
+  Fee reason if transaction of type FEE
+  """
+  feeReason: FeeReason
+
+  """
+  ID of transaction causing fee if transaction of type FEE
+  """
+  causeId: String
+
+  """
+  ID of fee being refunded if transaction of type FEE_REFUND
+  """
+  feeId: String
 
   """
   List of details about this transaction depending on transaction type.
@@ -635,63 +733,6 @@ input SearchVirtualCardsTransactionsRequest {
   nextToken: String
 }
 
-"""
-Request used to retrive for virtual cards activity for a period.
-"""
-input GetVirtualCardsActiveRequest {
-  """
-  Starting date range of transactions to search.
-
-  Start date is rounded down to the beginning of the day in which startDate
-  occurs according to timeZone.
-  """
-  startDate: String!
-
-  """
-  Ending date range of transactions to search.
-
-  End date is rounded up to the end of the day in which endDate
-  occurs according to timeZone.
-  """
-  endDate: String!
-
-  """
-  Timezone in which to determine end of a day. Default is UTC.
-  Timezone is named according to POSIX time zone naming e.g. "America/New_York" or
-  "-04:00" or "Z" or "UTC"
-  """
-  timeZone: String
-}
-
-"""
-Response containing daily totals of active and cancelled virtual
-cards.
-"""
-type GetVirtualCardsActiveResponse {
-  """
-  ISO8601 representation of rounded start date in time zone specified in request.
-  """
-  startDate: String!
-
-  """
-  ISO8601 representation of rounded end date in time zone specified in request.
-  """
-  endDate: String!
-
-  """
-  Timezone used in response
-  """
-  timeZone: String!
-
-  """
-  Number of active cards on each day in the range. Array will have n-days elements
-  where n-days is the number of full days represented by startDate and endDate.
-
-  A card is considered active on a day if it is active for any part of a day.
-  """
-  activeCards: [Int!]!
-}
-
 input ListVirtualCardsBySudoRequest {
   sudoId: String!
 }
@@ -704,70 +745,153 @@ input ListFundingSourcesBySubRequest {
   sub: String!
 }
 
+input FundingSourceIdentityOptions {
+  fingerprint: String
+}
+
+"""
+Request used to accept a pending funding source from the given ID.
+"""
+input AcceptPendingFundingSourceRequest {
+  id: ID!
+  identityOptions: FundingSourceIdentityOptions
+  """
+  Optional flag to indicate whether to automatically update cards that have an
+  inactive funding source with the new funding source. The default value is true
+  """
+  updateCardFundingSource: Boolean
+}
+
+"""
+Request used to cancel a funding source from the given ID.
+"""
+input CancelFundingSourceRequest {
+  id: ID!
+}
+
+"""
+Request used to list provisional funding sources belonging to a given owner.
+"""
+input ListProvisionalFundingSourcesBySubRequest {
+  """
+  ID of the owner (sub) whose provisional funding sources should be listed.
+  """
+  sub: ID!
+}
+
+"""
+Request used to delete a provisional funding source with the given ID.
+"""
+input DeleteProvisionalFundingSourceRequest {
+  id: ID!
+}
+
+enum FeeReason {
+  INSUFFICIENT_FUNDS
+  FUNDING_ACCOUNT_CLOSED
+  FUNDING_DISPUTE
+  VIRTUAL_CARD_DISPUTE
+  RECLAIM_ABANDONED_TRANSACTION
+}
+
+input ChargeServiceFeeForVirtualCardInput {
+  feeReason: FeeReason!
+  causeId: String!
+  amount: UserCurrencyAmountInput!
+}
+
+input RefundServiceFeeForVirtualCardInput {
+  feeId: String!
+  amount: UserCurrencyAmountInput!
+}
+
+"""
+Request used to request deletion of virtual cards data associated with a given owner.
+"""
+input DeleteVirtualCardsDataRequest {
+  owner: String!
+  deletionType: String!
+  inactiveSinceEpochMs: Float
+}
+
+"""
+Response associated with deletion of virtual cards data associated with a given owner.
+"""
+type DeleteVirtualCardsDataResponse {
+  status: String!
+}
+
+"""
+Response associated with deletion of a single provisional funding source.
+"""
+type DeleteProvisionalFundingSourceResponse {
+  """
+  ID of the provisional funding source that was deleted.
+  """
+  id: ID!
+}
+
 type Query {
   searchVirtualCardsTransactions(
     input: SearchVirtualCardsTransactionsRequest!
   ): TransactionResponse!
-    @aws_cognito_user_pools(
-      cognito_groups: [
-        "[TENANT]/Developer"
-        "[TENANT]/Support"
-        "[TENANT]/Admin"
-      ]
-    )
-    @aws_iam
-    @aws_api_key
 
   listVirtualCardsBySudo(
     input: ListVirtualCardsBySudoRequest!
   ): [VirtualCard!]!
-    @aws_cognito_user_pools(
-      cognito_groups: [
-        "[TENANT]/Developer"
-        "[TENANT]/Support"
-        "[TENANT]/Admin"
-      ]
-    )
-    @aws_iam
-    @aws_api_key
 
   listVirtualCardsBySub(input: ListVirtualCardsBySubRequest!): [VirtualCard!]!
-    @aws_cognito_user_pools(
-      cognito_groups: [
-        "[TENANT]/Developer"
-        "[TENANT]/Support"
-        "[TENANT]/Admin"
-      ]
-    )
-    @aws_iam
-    @aws_api_key
 
   listFundingSourcesBySub(
     input: ListFundingSourcesBySubRequest!
   ): [FundingSource!]!
-    @aws_cognito_user_pools(
-      cognito_groups: [
-        "[TENANT]/Developer"
-        "[TENANT]/Support"
-        "[TENANT]/Admin"
-      ]
-    )
-    @aws_iam
-    @aws_api_key
 
   """
-  Return number of virtual cards active on a set of days.
+  List the provisional funding sources belonging to a given owner.
   """
-  getVirtualCardsActive(
-    input: GetVirtualCardsActiveRequest!
-  ): GetVirtualCardsActiveResponse!
-    @aws_cognito_user_pools(
-      cognito_groups: [
-        "[TENANT]/Developer"
-        "[TENANT]/Support"
-        "[TENANT]/Admin"
-      ]
-    )
-    @aws_iam
-    @aws_api_key
+  listProvisionalFundingSourcesBySub(
+    input: ListProvisionalFundingSourcesBySubRequest!
+  ): [ProvisionalFundingSource!]!
+}
+
+type Mutation {
+  """
+  Accept a pending funding source with a given ID.
+  """
+  acceptPendingFundingSource(
+    input: AcceptPendingFundingSourceRequest!
+  ): FundingSource!
+
+  """
+  Cancel a funding source with a given funding source id.
+  """
+  cancelFundingSource(input: CancelFundingSourceRequest!): FundingSource!
+
+  """
+  Charge a service fee against a virtual card.
+  """
+  chargeServiceFeeForVirtualCard(
+    input: ChargeServiceFeeForVirtualCardInput
+  ): Transaction!
+
+  """
+  Refund a service fee previously charged against a virtual card.
+  """
+  refundServiceFeeForVirtualCard(
+    input: RefundServiceFeeForVirtualCardInput
+  ): Transaction!
+
+  """
+  Delete virtual cards data associated with a given owner.
+  """
+  deleteVirtualCardsData(
+    input: DeleteVirtualCardsDataRequest!
+  ): DeleteVirtualCardsDataResponse!
+
+  """
+  Delete a single provisional funding source with the given ID.
+  """
+  deleteProvisionalFundingSource(
+    input: DeleteProvisionalFundingSourceRequest!
+  ): DeleteProvisionalFundingSourceResponse!
 }

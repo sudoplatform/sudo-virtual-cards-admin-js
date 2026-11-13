@@ -1,0 +1,5 @@
+mutation cancelFundingSource($input: CancelFundingSourceRequest!) {
+  cancelFundingSource(input: $input) {
+    ...AdminFundingSource
+  }
+}

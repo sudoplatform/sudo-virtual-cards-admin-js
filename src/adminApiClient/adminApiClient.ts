@@ -19,26 +19,50 @@ import { GraphQLOptions } from '@aws-amplify/api-graphql'
 import * as t from 'io-ts'
 import { ErrorTransformer } from '../data/transformers/errorTransformer/errorTransformer'
 import {
+  AcceptPendingFundingSourceDocument,
+  AcceptPendingFundingSourceMutation,
+  AcceptPendingFundingSourceRequest,
+  CancelFundingSourceDocument,
+  CancelFundingSourceMutation,
+  CancelFundingSourceRequest,
+  ChargeServiceFeeForVirtualCardDocument,
+  ChargeServiceFeeForVirtualCardInput,
+  ChargeServiceFeeForVirtualCardMutation,
+  DeleteProvisionalFundingSourceDocument,
+  DeleteProvisionalFundingSourceMutation,
+  DeleteProvisionalFundingSourceRequest,
+  DeleteVirtualCardsDataDocument,
+  DeleteVirtualCardsDataMutation,
+  DeleteVirtualCardsDataRequest,
+  DeleteVirtualCardsDataResponse,
   FundingSource,
-  GetVirtualCardsActiveDocument,
-  GetVirtualCardsActiveQuery,
-  GetVirtualCardsActiveRequest,
-  GetVirtualCardsActiveResponse,
   ListFundingSourcesBySubDocument,
   ListFundingSourcesBySubQuery,
   ListFundingSourcesBySubRequest,
+  ListProvisionalFundingSourcesBySubDocument,
+  ListProvisionalFundingSourcesBySubQuery,
+  ListProvisionalFundingSourcesBySubRequest,
   ListVirtualCardsBySubDocument,
   ListVirtualCardsBySubQuery,
   ListVirtualCardsBySubRequest,
   ListVirtualCardsBySudoDocument,
   ListVirtualCardsBySudoQuery,
   ListVirtualCardsBySudoRequest,
+  ProvisionalFundingSource,
+  RefundServiceFeeForVirtualCardDocument,
+  RefundServiceFeeForVirtualCardInput,
+  RefundServiceFeeForVirtualCardMutation,
   SearchVirtualCardsTransactionsDocument,
   SearchVirtualCardsTransactionsQuery,
   SearchVirtualCardsTransactionsRequest,
+  Transaction,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
+import type {
+  SudoVirtualCardsAdminAuth,
+  SudoVirtualCardsAdminEndpoint,
+} from '../virtualCardsAdmin/virtualCardsAdminClient'
 import {
   GraphQLClient,
   GraphQLClientAuthMode,
@@ -69,8 +93,26 @@ export type AdminConsoleProject = t.TypeOf<typeof AdminConsoleProject>
  * API key value.
  */
 function getAuthOptions(
-  apiKey: string,
+  auth: string | SudoVirtualCardsAdminAuth,
 ): Omit<GraphQLClientOptions, 'graphqlUrl' | 'region'> {
+  if (typeof auth !== 'string') {
+    switch (auth.type) {
+      case 'apiKey':
+        return { authMode: GraphQLClientAuthMode.ApiKey, apiKey: auth.apiKey }
+      case 'iam':
+        return {
+          authMode: GraphQLClientAuthMode.IAM,
+          credentials: auth.credentials,
+        }
+      case 'token':
+        return {
+          authMode: GraphQLClientAuthMode.OpenIDConnect,
+          tokenProvider: auth.tokenProvider,
+        }
+    }
+  }
+
+  const apiKey = auth
   if (apiKey === 'IAM') {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
@@ -95,41 +137,80 @@ function getAuthOptions(
   }
 }
 
+/**
+ * `DefaultLogger` reads `process.env`, which does not exist in browsers, so
+ * construction throws there. Fall back to a silent logger rather than failing.
+ */
+function createDefaultLogger(name: string): Logger {
+  try {
+    return new DefaultLogger(name)
+  } catch {
+    return {
+      trace: () => false,
+      debug: () => false,
+      info: () => false,
+      warn: () => false,
+      error: () => false,
+      fatal: () => false,
+    }
+  }
+}
+
+/**
+ * Long-lived credentials (API key, static IAM credentials) must not be shipped
+ * to a browser, where any user of the page can read them.
+ */
+function warnIfBrowserWithStaticCredentials(
+  auth: string | SudoVirtualCardsAdminAuth,
+): void {
+  const isBrowser =
+    typeof window !== 'undefined' && typeof window.document !== 'undefined'
+  if (!isBrowser) {
+    return
+  }
+  const type = typeof auth === 'string' ? 'apiKey' : auth.type
+  if (
+    type === 'apiKey' ||
+    (typeof auth !== 'string' && auth.type === 'iam' && auth.credentials)
+  ) {
+    console.warn(
+      `SudoVirtualCardsAdmin: '${type}' authentication uses long-lived credentials that are exposed to anyone who can load this page. Use { type: 'token' } in browser applications.`,
+    )
+  }
+}
+
 export class AdminApiClient {
   private readonly log: Logger
   private readonly configurationManager: ConfigurationManager
   private readonly client: GraphQLClient
 
   public constructor(
-    apiKey: string,
+    auth: string | SudoVirtualCardsAdminAuth,
     configurationManager?: ConfigurationManager,
     client?: GraphQLClient,
+    options?: { endpoint?: SudoVirtualCardsAdminEndpoint; logger?: Logger },
   ) {
-    this.log = new DefaultLogger(this.constructor.name)
+    warnIfBrowserWithStaticCredentials(auth)
+    this.log = options?.logger ?? createDefaultLogger(this.constructor.name)
     this.configurationManager =
       configurationManager ?? DefaultConfigurationManager.getInstance()
-    const config = this.configurationManager.bindConfigSet<AdminConsoleProject>(
-      AdminConsoleProject,
-      'adminConsoleProjectService',
-    )
+    let endpoint = options?.endpoint
+    if (!endpoint) {
+      const config =
+        this.configurationManager.bindConfigSet<AdminConsoleProject>(
+          AdminConsoleProject,
+          'adminConsoleProjectService',
+        )
+      endpoint = { graphqlUrl: config.apiUrl, region: config.region }
+    }
 
     this.client =
       client ??
       new internal.AmplifyClient({
-        graphqlUrl: config.apiUrl,
-        region: config.region,
-        ...getAuthOptions(apiKey),
+        graphqlUrl: endpoint.graphqlUrl,
+        region: endpoint.region,
+        ...getAuthOptions(auth),
       })
-  }
-
-  public async getVirtualCardsActive(
-    input: GetVirtualCardsActiveRequest,
-  ): Promise<GetVirtualCardsActiveResponse> {
-    const data = await this.performQuery<GetVirtualCardsActiveQuery>({
-      query: GetVirtualCardsActiveDocument,
-      variables: { input },
-    })
-    return data.getVirtualCardsActive
   }
 
   public async listFundingSourcesBySub(
@@ -170,6 +251,82 @@ export class AdminApiClient {
       variables: { input },
     })
     return data.searchVirtualCardsTransactions
+  }
+
+  public async listProvisionalFundingSourcesBySub(
+    input: ListProvisionalFundingSourcesBySubRequest,
+  ): Promise<ProvisionalFundingSource[]> {
+    const data =
+      await this.performQuery<ListProvisionalFundingSourcesBySubQuery>({
+        query: ListProvisionalFundingSourcesBySubDocument,
+        variables: { input },
+      })
+    return data.listProvisionalFundingSourcesBySub
+  }
+
+  public async deleteProvisionalFundingSource(
+    input: DeleteProvisionalFundingSourceRequest,
+  ): Promise<string> {
+    const data =
+      await this.performMutation<DeleteProvisionalFundingSourceMutation>({
+        mutation: DeleteProvisionalFundingSourceDocument,
+        variables: { input },
+      })
+    return data.deleteProvisionalFundingSource.id
+  }
+
+  public async acceptPendingFundingSource(
+    input: AcceptPendingFundingSourceRequest,
+  ): Promise<FundingSource> {
+    const data = await this.performMutation<AcceptPendingFundingSourceMutation>(
+      {
+        mutation: AcceptPendingFundingSourceDocument,
+        variables: { input },
+      },
+    )
+    return data.acceptPendingFundingSource
+  }
+
+  public async cancelFundingSource(
+    input: CancelFundingSourceRequest,
+  ): Promise<FundingSource> {
+    const data = await this.performMutation<CancelFundingSourceMutation>({
+      mutation: CancelFundingSourceDocument,
+      variables: { input },
+    })
+    return data.cancelFundingSource
+  }
+
+  public async chargeServiceFeeForVirtualCard(
+    input: ChargeServiceFeeForVirtualCardInput,
+  ): Promise<Transaction> {
+    const data =
+      await this.performMutation<ChargeServiceFeeForVirtualCardMutation>({
+        mutation: ChargeServiceFeeForVirtualCardDocument,
+        variables: { input },
+      })
+    return data.chargeServiceFeeForVirtualCard
+  }
+
+  public async refundServiceFeeForVirtualCard(
+    input: RefundServiceFeeForVirtualCardInput,
+  ): Promise<Transaction> {
+    const data =
+      await this.performMutation<RefundServiceFeeForVirtualCardMutation>({
+        mutation: RefundServiceFeeForVirtualCardDocument,
+        variables: { input },
+      })
+    return data.refundServiceFeeForVirtualCard
+  }
+
+  public async deleteVirtualCardsData(
+    input: DeleteVirtualCardsDataRequest,
+  ): Promise<DeleteVirtualCardsDataResponse> {
+    const data = await this.performMutation<DeleteVirtualCardsDataMutation>({
+      mutation: DeleteVirtualCardsDataDocument,
+      variables: { input },
+    })
+    return data.deleteVirtualCardsData
   }
 
   async performQuery<Q>({

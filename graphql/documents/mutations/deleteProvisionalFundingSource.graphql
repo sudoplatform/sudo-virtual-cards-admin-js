@@ -1,0 +1,7 @@
+mutation deleteProvisionalFundingSource(
+  $input: DeleteProvisionalFundingSourceRequest!
+) {
+  deleteProvisionalFundingSource(input: $input) {
+    id
+  }
+}

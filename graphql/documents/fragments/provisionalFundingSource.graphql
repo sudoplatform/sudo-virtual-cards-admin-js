@@ -1,0 +1,14 @@
+fragment ProvisionalFundingSource on ProvisionalFundingSource {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  state
+  stateReason
+  type
+  providerName
+  currency
+  last4
+  cardType
+}

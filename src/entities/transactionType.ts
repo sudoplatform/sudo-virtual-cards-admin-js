@@ -8,6 +8,8 @@ export enum TransactionType {
   Chargeback = 'CHARGEBACK',
   Complete = 'COMPLETE',
   Decline = 'DECLINE',
+  Fee = 'FEE',
+  FeeRefund = 'FEE_REFUND',
   Pending = 'PENDING',
   Refund = 'REFUND',
   Reversal = 'REVERSAL',

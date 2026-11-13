@@ -1,0 +1,5 @@
+mutation deleteVirtualCardsData($input: DeleteVirtualCardsDataRequest!) {
+  deleteVirtualCardsData(input: $input) {
+    status
+  }
+}

@@ -48,7 +48,6 @@ export class BankAccountFundingSourceTransformer {
       currency: graphql.currency,
       state: FundingSourceStateTransformer.toEntity(graphql.state),
       flags: FundingSourceFlagsTransformer.toEntity(graphql.flags),
-      last4: graphql.last4,
       fingerprint: graphql.fingerprint,
       authorization: SignedAuthorizationTextTransformer.toEntity(
         graphql.authorization,
@@ -86,7 +85,6 @@ export class BankAccountFundingSourceTransformer {
       currency: entity.currency,
       state: FundingSourceStateTransformer.toGraphQL(entity.state),
       flags: FundingSourceFlagsTransformer.toGraphQL(entity.flags),
-      last4: entity.last4,
       fingerprint: entity.fingerprint,
       authorization: SignedAuthorizationTextTransformer.toGraphQL(
         entity.authorization,

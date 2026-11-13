@@ -10,9 +10,13 @@ import {
   CardType,
   CreditCardFundingSource,
   CreditCardNetwork,
+  FundingSourceType,
   Markup,
   Merchant,
   Owner,
+  ProvisionalFundingSource,
+  ProvisionalFundingSourceState,
+  StateReason,
   Transaction,
   TransactionConnection,
   TransactionDetail,
@@ -37,7 +41,6 @@ export class EntityDataFactory {
     currency: 'dummyCurrency',
     state: FundingSourceState.Active,
     flags: [],
-    last4: '1234',
     fingerprint: 'fingerprint',
   }
 
@@ -59,6 +62,7 @@ export class EntityDataFactory {
   static readonly creditCardFundingSource: CreditCardFundingSource = {
     ...this.commonFundingSourceProps,
     version: 1,
+    last4: '1234',
     cardType: CardType.Credit,
     network: CreditCardNetwork.Visa,
   }
@@ -82,9 +86,23 @@ export class EntityDataFactory {
     fundingSourceId: 'dummyFundingSourceId',
     currency: 'USD',
     state: CardState.Issued,
+    stateReason: StateReason.User,
     activeTo: new Date(1),
     cancelledAt: new Date(1),
     last4: '1234',
+  }
+
+  static readonly provisionalFundingSource: ProvisionalFundingSource = {
+    ...this.commonProps,
+    id: 'dummyProvisionalFundingSourceId',
+    version: 1,
+    state: ProvisionalFundingSourceState.Completed,
+    stateReason: StateReason.User,
+    type: FundingSourceType.CreditCard,
+    providerName: 'dummyProviderName',
+    currency: 'USD',
+    last4: '1234',
+    cardType: CardType.Credit,
   }
 
   static readonly markup: Markup = {

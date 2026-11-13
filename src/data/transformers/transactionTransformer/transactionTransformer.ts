@@ -10,6 +10,7 @@ import {
 } from '../../../gen/graphqlTypes'
 import { Transaction as TransactionEntity } from '../../../entities/transaction'
 import { TransactionType as TransactionTypeEntity } from '../../../entities/transactionType'
+import { FeeReasonTransformer } from '../feeReasonTransformer'
 import { MerchantTransformer } from '../merchantTransformer'
 import { TransactionDetailTransformer } from '../transactionDetailTransformer'
 
@@ -39,8 +40,15 @@ export class TransactionTransformer {
       transactedAt: new Date(parseInt(graphql.transactedAtEpochMs)),
       billedAmount: graphql.billedAmount,
       transactedAmount: graphql.transactedAmount,
-      merchant: MerchantTransformer.toEntity(graphql.merchant),
+      merchant: graphql.merchant
+        ? MerchantTransformer.toEntity(graphql.merchant)
+        : undefined,
       declineReason: graphql.declineReason ?? undefined,
+      feeReason: graphql.feeReason
+        ? FeeReasonTransformer.toEntity(graphql.feeReason)
+        : undefined,
+      causeId: graphql.causeId ?? undefined,
+      feeId: graphql.feeId ?? undefined,
       detail: graphql.detail
         ? graphql.detail.map((detail) =>
             TransactionDetailTransformer.toEntity(detail),
@@ -68,8 +76,15 @@ export class TransactionTransformer {
       transactedAtEpochMs: entity.transactedAt.getTime().toString(),
       billedAmount: entity.billedAmount,
       transactedAmount: entity.transactedAmount,
-      merchant: MerchantTransformer.toGraphQL(entity.merchant),
+      merchant: entity.merchant
+        ? MerchantTransformer.toGraphQL(entity.merchant)
+        : undefined,
       declineReason: entity.declineReason ?? undefined,
+      feeReason: entity.feeReason
+        ? FeeReasonTransformer.toGraphQL(entity.feeReason)
+        : undefined,
+      causeId: entity.causeId,
+      feeId: entity.feeId,
       detail: entity.detail
         ? entity.detail.map((detail) =>
             TransactionDetailTransformer.toGraphQL(detail),
@@ -102,6 +117,10 @@ export class TransactionTransformer {
         return TransactionTypeEntity.Refund
       case TransactionTypeGraphQL.Chargeback:
         return TransactionTypeEntity.Chargeback
+      case TransactionTypeGraphQL.Fee:
+        return TransactionTypeEntity.Fee
+      case TransactionTypeGraphQL.FeeRefund:
+        return TransactionTypeEntity.FeeRefund
     }
   }
 
@@ -129,6 +148,10 @@ export class TransactionTransformer {
         return TransactionTypeGraphQL.Refund
       case TransactionTypeEntity.Chargeback:
         return TransactionTypeGraphQL.Chargeback
+      case TransactionTypeEntity.Fee:
+        return TransactionTypeGraphQL.Fee
+      case TransactionTypeEntity.FeeRefund:
+        return TransactionTypeGraphQL.FeeRefund
     }
   }
 }

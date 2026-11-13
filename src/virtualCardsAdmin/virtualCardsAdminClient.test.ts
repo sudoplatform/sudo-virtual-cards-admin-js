@@ -21,15 +21,24 @@ import { AdminApiClient } from '../adminApiClient'
 import { DefaultSudoVirtualCardsAdminClientPrivateOptions } from '../private/defaultSudoVirtualCardsAdminClientPrivateOptions'
 import {
   FundingSource,
-  GetVirtualCardsActiveResponse,
+  ProvisionalFundingSource,
   TransactionResponse,
   VirtualCard,
 } from '../gen/graphqlTypes'
-import { GetVirtualCardsActiveRequest } from './request/getVirtualCardsActiveRequest'
-import { GetVirtualCardsActiveResponseTransformer } from '../data/transformers/getVirtualCardsActiveResponseTransformer'
 import { ListFundingSourcesBySubRequest } from './request/listFundingSourcesBySubRequest'
 import { FundingSourceTransformer } from '../data/transformers/fundingSourceTransformer'
 import { VirtualCardTransformer } from '../data/transformers/virtualCardTransformer'
+import { AcceptPendingFundingSourceRequest } from './request/acceptPendingFundingSourceRequest'
+import { CancelFundingSourceRequest } from './request/cancelFundingSourceRequest'
+import { ChargeServiceFeeForVirtualCardRequest } from './request/chargeServiceFeeForVirtualCardRequest'
+import { RefundServiceFeeForVirtualCardRequest } from './request/refundServiceFeeForVirtualCardRequest'
+import { DeleteVirtualCardsDataRequest } from './request/deleteVirtualCardsDataRequest'
+import { TransactionTransformer } from '../data/transformers/transactionTransformer'
+import { FeeReason } from '../entities/feeReason'
+import { FeeReason as FeeReasonGraphQL } from '../gen/graphqlTypes'
+import { ListProvisionalFundingSourcesBySubRequest } from './request/listProvisionalFundingSourcesBySubRequest'
+import { DeleteProvisionalFundingSourceRequest } from './request/deleteProvisionalFundingSourceRequest'
+import { ProvisionalFundingSourceTransformer } from '../data/transformers/provisionalFundingSourceTransformer'
 import { ListVirtualCardsBySudoRequest } from './request/listVirtualCardsBySudoRequest'
 import { ListVirtualCardsBySubRequest } from './request/listVirtualCardsBySubRequest'
 import { SearchVirtualCardsTransactionsRequest } from './request/searchVirtualCardsTransactionsRequest'
@@ -45,43 +54,218 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
   beforeEach(() => {
     reset(mockAdminApiClient)
 
-    const privateOptions: DefaultSudoVirtualCardsAdminClientPrivateOptions = {
-      adminApiClient: instance(mockAdminApiClient),
-    }
+    const privateOptions: Partial<DefaultSudoVirtualCardsAdminClientPrivateOptions> =
+      {
+        adminApiClient: instance(mockAdminApiClient),
+      }
     sudoVirtualCardsAdminClient = new DefaultVirtualCardsAdminClient(
       apiKey,
       privateOptions,
     )
   })
 
-  describe('getVirtualCardsActive tests', () => {
-    const now = new Date()
-    const timeZone = 'Australia/Brisbane'
-
-    const adminClientRequest: GetVirtualCardsActiveRequest = {
-      startDate: now,
-      endDate: now,
-      timeZone,
+  describe('acceptPendingFundingSource tests', () => {
+    const adminClientRequest: AcceptPendingFundingSourceRequest = {
+      id: 'dummyId',
+      identityOptions: { fingerprint: 'fp' },
+      updateCardFundingSource: false,
     }
-
-    const adminApiResult: GetVirtualCardsActiveResponse = {
-      activeCards: [1],
-      startDate: now.toISOString(),
-      endDate: now.toISOString(),
-      timeZone,
-    }
-
-    const adminClientResult =
-      GetVirtualCardsActiveResponseTransformer.toEntity(adminApiResult)
+    const adminApiResult = GraphQLDataFactory.bankAccountFundingSource
 
     it('should return results', async () => {
-      when(mockAdminApiClient.getVirtualCardsActive(anything())).thenResolve(
+      when(
+        mockAdminApiClient.acceptPendingFundingSource(anything()),
+      ).thenResolve(adminApiResult)
+
+      await expect(
+        sudoVirtualCardsAdminClient.acceptPendingFundingSource(
+          adminClientRequest,
+        ),
+      ).resolves.toEqual(FundingSourceTransformer.toEntity(adminApiResult))
+
+      const [actualInput] = capture(
+        mockAdminApiClient.acceptPendingFundingSource,
+      ).first()
+      expect(actualInput).toEqual({
+        id: 'dummyId',
+        identityOptions: { fingerprint: 'fp' },
+        updateCardFundingSource: false,
+      })
+      verify(mockAdminApiClient.acceptPendingFundingSource(anything())).once()
+    })
+  })
+
+  describe('cancelFundingSource tests', () => {
+    const adminClientRequest: CancelFundingSourceRequest = { id: 'dummyId' }
+    const adminApiResult = GraphQLDataFactory.bankAccountFundingSource
+
+    it('should return results', async () => {
+      when(mockAdminApiClient.cancelFundingSource(anything())).thenResolve(
         adminApiResult,
       )
 
       await expect(
-        sudoVirtualCardsAdminClient.getVirtualCardsActive(adminClientRequest),
+        sudoVirtualCardsAdminClient.cancelFundingSource(adminClientRequest),
+      ).resolves.toEqual(FundingSourceTransformer.toEntity(adminApiResult))
+
+      const [actualInput] = capture(
+        mockAdminApiClient.cancelFundingSource,
+      ).first()
+      expect(actualInput).toEqual({ id: 'dummyId' })
+      verify(mockAdminApiClient.cancelFundingSource(anything())).once()
+    })
+  })
+
+  describe('chargeServiceFeeForVirtualCard tests', () => {
+    const adminClientRequest: ChargeServiceFeeForVirtualCardRequest = {
+      feeReason: FeeReason.InsufficientFunds,
+      causeId: 'dummyCauseId',
+      amount: { currency: 'USD', amount: 1 },
+    }
+    const adminApiResult = GraphQLDataFactory.transaction
+
+    it('should return results', async () => {
+      when(
+        mockAdminApiClient.chargeServiceFeeForVirtualCard(anything()),
+      ).thenResolve(adminApiResult)
+
+      await expect(
+        sudoVirtualCardsAdminClient.chargeServiceFeeForVirtualCard(
+          adminClientRequest,
+        ),
+      ).resolves.toEqual(TransactionTransformer.toEntity(adminApiResult))
+
+      const [actualInput] = capture(
+        mockAdminApiClient.chargeServiceFeeForVirtualCard,
+      ).first()
+      expect(actualInput).toEqual({
+        feeReason: FeeReasonGraphQL.InsufficientFunds,
+        causeId: 'dummyCauseId',
+        amount: { currency: 'USD', amount: 1 },
+      })
+      verify(
+        mockAdminApiClient.chargeServiceFeeForVirtualCard(anything()),
+      ).once()
+    })
+  })
+
+  describe('refundServiceFeeForVirtualCard tests', () => {
+    const adminClientRequest: RefundServiceFeeForVirtualCardRequest = {
+      feeId: 'dummyFeeId',
+      amount: { currency: 'USD', amount: 1 },
+    }
+    const adminApiResult = GraphQLDataFactory.transaction
+
+    it('should return results', async () => {
+      when(
+        mockAdminApiClient.refundServiceFeeForVirtualCard(anything()),
+      ).thenResolve(adminApiResult)
+
+      await expect(
+        sudoVirtualCardsAdminClient.refundServiceFeeForVirtualCard(
+          adminClientRequest,
+        ),
+      ).resolves.toEqual(TransactionTransformer.toEntity(adminApiResult))
+
+      const [actualInput] = capture(
+        mockAdminApiClient.refundServiceFeeForVirtualCard,
+      ).first()
+      expect(actualInput).toEqual({
+        feeId: 'dummyFeeId',
+        amount: { currency: 'USD', amount: 1 },
+      })
+      verify(
+        mockAdminApiClient.refundServiceFeeForVirtualCard(anything()),
+      ).once()
+    })
+  })
+
+  describe('deleteVirtualCardsData tests', () => {
+    const adminClientRequest: DeleteVirtualCardsDataRequest = {
+      owner: 'dummyOwner',
+      deletionType: 'dummyType',
+      inactiveSince: new Date(1),
+    }
+    const adminApiResult = { status: 'dummyStatus' }
+
+    it('should return results', async () => {
+      when(mockAdminApiClient.deleteVirtualCardsData(anything())).thenResolve(
+        adminApiResult,
+      )
+
+      await expect(
+        sudoVirtualCardsAdminClient.deleteVirtualCardsData(adminClientRequest),
+      ).resolves.toEqual('dummyStatus')
+
+      const [actualInput] = capture(
+        mockAdminApiClient.deleteVirtualCardsData,
+      ).first()
+      expect(actualInput).toEqual({
+        owner: 'dummyOwner',
+        deletionType: 'dummyType',
+        inactiveSinceEpochMs: 1,
+      })
+      verify(mockAdminApiClient.deleteVirtualCardsData(anything())).once()
+    })
+  })
+
+  describe('listProvisionalFundingSourcesBySub tests', () => {
+    const adminClientRequest: ListProvisionalFundingSourcesBySubRequest = {
+      sub: 'mock-sub',
+    }
+
+    const adminApiResult: ProvisionalFundingSource[] = [
+      GraphQLDataFactory.provisionalFundingSource,
+    ]
+
+    const adminClientResult = adminApiResult.map((provisionalFundingSource) =>
+      ProvisionalFundingSourceTransformer.toEntity(provisionalFundingSource),
+    )
+
+    it('should return results', async () => {
+      when(
+        mockAdminApiClient.listProvisionalFundingSourcesBySub(anything()),
+      ).thenResolve(adminApiResult)
+
+      await expect(
+        sudoVirtualCardsAdminClient.listProvisionalFundingSourcesBySub(
+          adminClientRequest,
+        ),
       ).resolves.toEqual(adminClientResult)
+
+      const [actualInput] = capture(
+        mockAdminApiClient.listProvisionalFundingSourcesBySub,
+      ).first()
+      expect(actualInput).toEqual(adminClientRequest)
+      verify(
+        mockAdminApiClient.listProvisionalFundingSourcesBySub(anything()),
+      ).once()
+    })
+  })
+
+  describe('deleteProvisionalFundingSource tests', () => {
+    const adminClientRequest: DeleteProvisionalFundingSourceRequest = {
+      id: 'dummyProvisionalFundingSourceId',
+    }
+
+    it('should return the id of the deleted provisional funding source', async () => {
+      when(
+        mockAdminApiClient.deleteProvisionalFundingSource(anything()),
+      ).thenResolve('dummyProvisionalFundingSourceId')
+
+      await expect(
+        sudoVirtualCardsAdminClient.deleteProvisionalFundingSource(
+          adminClientRequest,
+        ),
+      ).resolves.toEqual('dummyProvisionalFundingSourceId')
+
+      const [actualInput] = capture(
+        mockAdminApiClient.deleteProvisionalFundingSource,
+      ).first()
+      expect(actualInput).toEqual(adminClientRequest)
+      verify(
+        mockAdminApiClient.deleteProvisionalFundingSource(anything()),
+      ).once()
     })
   })
 

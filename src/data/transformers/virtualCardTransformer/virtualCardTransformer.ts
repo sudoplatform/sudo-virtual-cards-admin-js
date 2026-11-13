@@ -7,6 +7,7 @@
 import { VirtualCard as VirtualCardGraphQL } from '../../../gen/graphqlTypes'
 import { VirtualCard as VirtualCardEntity } from '../../../entities/virtualCard'
 import { OwnerTransformer } from '../ownerTransformer'
+import { StateReasonTransformer } from '../stateReasonTransformer'
 
 /**
  * Utility transformer class, responsible for transforming between
@@ -38,6 +39,7 @@ export class VirtualCardTransformer {
       fundingSourceId: graphql.fundingSourceId,
       currency: graphql.currency,
       state: graphql.state,
+      stateReason: StateReasonTransformer.toEntity(graphql.stateReason),
       activeTo: new Date(graphql.activeToEpochMs),
       cancelledAt: graphql.cancelledAtEpochMs
         ? new Date(graphql.cancelledAtEpochMs)
@@ -69,6 +71,7 @@ export class VirtualCardTransformer {
       fundingSourceId: entity.fundingSourceId,
       currency: entity.currency,
       state: entity.state,
+      stateReason: StateReasonTransformer.toGraphQL(entity.stateReason),
       activeToEpochMs: entity.activeTo.getTime(),
       cancelledAtEpochMs: entity.cancelledAt?.getTime(),
       last4: entity.last4,

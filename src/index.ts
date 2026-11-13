@@ -9,5 +9,4 @@
 export * from './entities'
 export * from './global/error'
 export * from './virtualCardsAdmin/request'
-export * from './virtualCardsAdmin/response'
 export * from './virtualCardsAdmin/virtualCardsAdminClient'

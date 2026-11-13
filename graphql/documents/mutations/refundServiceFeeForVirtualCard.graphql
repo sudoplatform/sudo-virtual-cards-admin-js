@@ -1,0 +1,7 @@
+mutation refundServiceFeeForVirtualCard(
+  $input: RefundServiceFeeForVirtualCardInput!
+) {
+  refundServiceFeeForVirtualCard(input: $input) {
+    ...Transaction
+  }
+}

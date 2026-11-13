@@ -15,6 +15,9 @@ fragment Transaction on Transaction {
     ...Merchant
   }
   declineReason
+  feeReason
+  causeId
+  feeId
   detail {
     ...TransactionDetail
   }

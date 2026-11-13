@@ -4,7 +4,6 @@ import eslint from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import tsesparser from '@typescript-eslint/parser'
-import jestPlugin from 'eslint-plugin-jest'
 import prettierPlugin from 'eslint-plugin-prettier'
 import importPlugin from 'eslint-plugin-import'
 import treeshaking from 'eslint-plugin-tree-shaking'
@@ -32,7 +31,6 @@ export default tseslint.config(
     files: ['src/**/*.ts'],
     ignores: ['**/*.test.ts'],
     plugins: {
-      jest: jestPlugin,
       prettier: prettierPlugin,
       import: importPlugin,
       "tree-shaking": fixupPluginRules(treeshaking),
@@ -88,8 +86,7 @@ export default tseslint.config(
   },
   {
     name: 'test rules',
-    files: ['**/*.test.ts', 'test/**/*.ts', 'jest.setup.ts'],
-    plugins: { jest: jestPlugin,  },
+    files: ['**/*.test.ts', 'test/**/*.ts', 'vitest.setup.ts'],
     languageOptions: {
       parser: tsesparser,
       parserOptions: {
@@ -107,11 +104,6 @@ export default tseslint.config(
       '@typescript-eslint/restrict-plus-operands': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/unbound-method': 'off',
-      'jest/no-disabled-tests': 'warn',
-      'jest/no-focused-tests': 'error',
-      'jest/no-identical-title': 'error',
-      'jest/prefer-to-have-length': 'warn',
-      'jest/valid-expect': 'error',
     },
   },
 )
