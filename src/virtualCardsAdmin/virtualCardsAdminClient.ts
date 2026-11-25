@@ -10,6 +10,7 @@ import { AdminApiClient } from '../adminApiClient'
 import { DefaultSudoVirtualCardsAdminClientPrivateOptions } from '../private/defaultSudoVirtualCardsAdminClientPrivateOptions'
 import { FundingSource } from '../entities/fundingSource'
 import { AcceptPendingFundingSourceRequest } from './request/acceptPendingFundingSourceRequest'
+import { AssignFundingSourceToVirtualCardRequest } from './request/assignFundingSourceToVirtualCardRequest'
 import { CancelFundingSourceRequest } from './request/cancelFundingSourceRequest'
 import { ChargeServiceFeeForVirtualCardRequest } from './request/chargeServiceFeeForVirtualCardRequest'
 import { RefundServiceFeeForVirtualCardRequest } from './request/refundServiceFeeForVirtualCardRequest'
@@ -94,6 +95,20 @@ export interface SudoVirtualCardsAdminClient {
   cancelFundingSource: (
     request: CancelFundingSourceRequest,
   ) => Promise<FundingSource>
+
+  /**
+   * Assign an active funding source to an issued virtual card. The card and
+   * funding source must be owned by the given owner and share the same
+   * currency.
+   *
+   * @param request Input request object containing `owner`, `cardId` and
+   * `fundingSourceId`.
+   *
+   * @returns {VirtualCard} The updated virtual card.
+   */
+  assignFundingSourceToVirtualCard: (
+    request: AssignFundingSourceToVirtualCardRequest,
+  ) => Promise<VirtualCard>
 
   /**
    * Charge a service fee against a virtual card.
@@ -241,6 +256,19 @@ export class DefaultVirtualCardsAdminClient implements SudoVirtualCardsAdminClie
     }
     const result = await this.adminApiClient.acceptPendingFundingSource(input)
     return FundingSourceTransformer.toEntity(result)
+  }
+
+  public async assignFundingSourceToVirtualCard(
+    request: AssignFundingSourceToVirtualCardRequest,
+  ): Promise<VirtualCard> {
+    const input = {
+      owner: request.owner,
+      cardId: request.cardId,
+      fundingSourceId: request.fundingSourceId,
+    }
+    const result =
+      await this.adminApiClient.assignFundingSourceToVirtualCard(input)
+    return VirtualCardTransformer.toEntity(result)
   }
 
   public async cancelFundingSource(

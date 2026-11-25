@@ -1,0 +1,7 @@
+mutation assignFundingSourceToVirtualCard(
+  $input: AssignFundingSourceToVirtualCardRequest!
+) {
+  assignFundingSourceToVirtualCard(input: $input) {
+    ...VirtualCardWithoutSealedAttributes
+  }
+}

@@ -20,6 +20,26 @@ export type AcceptPendingFundingSourceRequest = {
   updateCardFundingSource?: boolean | null | undefined
 }
 
+/** Request used to assign a funding source to a virtual card. */
+export type AssignFundingSourceToVirtualCardRequest = {
+  /**
+   * ID of the virtual card to assign the funding source to. The card must be
+   * in the ISSUED state.
+   */
+  cardId: string | number
+  /**
+   * ID of the funding source to assign. The funding source must be ACTIVE and
+   * have the same currency as the virtual card.
+   */
+  fundingSourceId: string | number
+  /**
+   * ID of the owner (sub) of both the virtual card and the funding source.
+   * Used as a consistency check: the request is rejected if either does not
+   * belong to this owner.
+   */
+  owner: string | number
+}
+
 export enum BankAccountType {
   Checking = 'CHECKING',
   Other = 'OTHER',
@@ -245,6 +265,7 @@ export type BankAccountFundingSourceFragment = {
 }
 
 type AdminFundingSource_BankAccountFundingSource_Fragment = {
+  __typename: 'BankAccountFundingSource'
   id: string
   owner: string
   version: number
@@ -268,6 +289,7 @@ type AdminFundingSource_BankAccountFundingSource_Fragment = {
 }
 
 type AdminFundingSource_CreditCardFundingSource_Fragment = {
+  __typename: 'CreditCardFundingSource'
   id: string
   owner: string
   version: number
@@ -390,6 +412,7 @@ export type AcceptPendingFundingSourceMutationVariables = Exact<{
 export type AcceptPendingFundingSourceMutation = {
   acceptPendingFundingSource:
     | {
+        __typename: 'BankAccountFundingSource'
         id: string
         owner: string
         version: number
@@ -412,6 +435,7 @@ export type AcceptPendingFundingSourceMutation = {
         unfundedAmount: { currency: string; amount: number } | null
       }
     | {
+        __typename: 'CreditCardFundingSource'
         id: string
         owner: string
         version: number
@@ -427,6 +451,31 @@ export type AcceptPendingFundingSourceMutation = {
       }
 }
 
+export type AssignFundingSourceToVirtualCardMutationVariables = Exact<{
+  input: AssignFundingSourceToVirtualCardRequest
+}>
+
+export type AssignFundingSourceToVirtualCardMutation = {
+  assignFundingSourceToVirtualCard: {
+    id: string
+    owner: string
+    version: number
+    createdAtEpochMs: number
+    updatedAtEpochMs: number
+    algorithm: string
+    keyId: string
+    keyRingId: string
+    fundingSourceId: string
+    currency: string
+    state: CardState
+    stateReason: StateReason
+    activeToEpochMs: number
+    cancelledAtEpochMs: number | null
+    last4: string
+    owners: Array<{ id: string; issuer: string }>
+  }
+}
+
 export type CancelFundingSourceMutationVariables = Exact<{
   input: CancelFundingSourceRequest
 }>
@@ -434,6 +483,7 @@ export type CancelFundingSourceMutationVariables = Exact<{
 export type CancelFundingSourceMutation = {
   cancelFundingSource:
     | {
+        __typename: 'BankAccountFundingSource'
         id: string
         owner: string
         version: number
@@ -456,6 +506,7 @@ export type CancelFundingSourceMutation = {
         unfundedAmount: { currency: string; amount: number } | null
       }
     | {
+        __typename: 'CreditCardFundingSource'
         id: string
         owner: string
         version: number
@@ -574,6 +625,7 @@ export type ListFundingSourcesBySubQueryVariables = Exact<{
 export type ListFundingSourcesBySubQuery = {
   listFundingSourcesBySub: Array<
     | {
+        __typename: 'BankAccountFundingSource'
         id: string
         owner: string
         version: number
@@ -596,6 +648,7 @@ export type ListFundingSourcesBySubQuery = {
         unfundedAmount: { currency: string; amount: number } | null
       }
     | {
+        __typename: 'CreditCardFundingSource'
         id: string
         owner: string
         version: number
@@ -829,6 +882,7 @@ export const AdminFundingSourceFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
           {
             kind: 'InlineFragment',
             typeCondition: {
@@ -1553,6 +1607,7 @@ export const AcceptPendingFundingSourceDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
           {
             kind: 'InlineFragment',
             typeCondition: {
@@ -1592,6 +1647,111 @@ export const AcceptPendingFundingSourceDocument = {
 } as unknown as DocumentNode<
   AcceptPendingFundingSourceMutation,
   AcceptPendingFundingSourceMutationVariables
+>
+export const AssignFundingSourceToVirtualCardDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'assignFundingSourceToVirtualCard' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'input' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: {
+                kind: 'Name',
+                value: 'AssignFundingSourceToVirtualCardRequest',
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assignFundingSourceToVirtualCard' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'input' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'VirtualCardWithoutSealedAttributes',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'VirtualCardWithoutSealedAttributes' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'VirtualCard' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'owner' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAtEpochMs' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'algorithm' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'keyId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'keyRingId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'owners' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'issuer' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'fundingSourceId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'stateReason' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activeToEpochMs' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cancelledAtEpochMs' },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'last4' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AssignFundingSourceToVirtualCardMutation,
+  AssignFundingSourceToVirtualCardMutationVariables
 >
 export const CancelFundingSourceDocument = {
   kind: 'Document',
@@ -1730,6 +1890,7 @@ export const CancelFundingSourceDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
           {
             kind: 'InlineFragment',
             typeCondition: {
@@ -2552,6 +2713,7 @@ export const ListFundingSourcesBySubDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
           {
             kind: 'InlineFragment',
             typeCondition: {

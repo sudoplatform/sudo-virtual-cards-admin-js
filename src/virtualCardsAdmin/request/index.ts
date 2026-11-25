@@ -11,6 +11,7 @@ export { SearchVirtualCardsTransactionsRequest } from './searchVirtualCardsTrans
 export { ListProvisionalFundingSourcesBySubRequest } from './listProvisionalFundingSourcesBySubRequest'
 export { DeleteProvisionalFundingSourceRequest } from './deleteProvisionalFundingSourceRequest'
 export { AcceptPendingFundingSourceRequest } from './acceptPendingFundingSourceRequest'
+export { AssignFundingSourceToVirtualCardRequest } from './assignFundingSourceToVirtualCardRequest'
 export { CancelFundingSourceRequest } from './cancelFundingSourceRequest'
 export { ChargeServiceFeeForVirtualCardRequest } from './chargeServiceFeeForVirtualCardRequest'
 export { DeleteVirtualCardsDataRequest } from './deleteVirtualCardsDataRequest'

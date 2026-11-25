@@ -40,6 +40,7 @@ fragment BankAccountFundingSource on BankAccountFundingSource {
 }
 
 fragment AdminFundingSource on FundingSource {
+  __typename
   ... on CreditCardFundingSource {
     ...CreditCardFundingSource
   }

@@ -15,7 +15,7 @@
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/SudoVirtualCardsAdminClient.html" class="tsd-signature-type tsd-kind-interface">SudoVirtualCardsAdminClient</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:204</li></ul></aside>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:219</li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -28,6 +28,7 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading tsd-anchor-link" id="methods">Methods<a href="#methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-index-list"><a href="#acceptpendingfundingsource" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>accept<wbr/>Pending<wbr/>Funding<wbr/>Source</span></a>
+<a href="#assignfundingsourcetovirtualcard" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>assign<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Virtual<wbr/>Card</span></a>
 <a href="#cancelfundingsource" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>cancel<wbr/>Funding<wbr/>Source</span></a>
 <a href="#chargeservicefeeforvirtualcard" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>charge<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span></a>
 <a href="#deleteprovisionalfundingsource" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>delete<wbr/>Provisional<wbr/>Funding<wbr/>Source</span></a>
@@ -62,7 +63,7 @@ the process environment. New code should pass an options object.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="" class="tsd-signature-type tsd-kind-class">DefaultVirtualCardsAdminClient</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:214</li></ul></aside></div></li></ul></section></section></details>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:229</li></ul></aside></div></li></ul></section></section></details>
 <details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
 <h2 class="tsd-anchor-link" id="methods-1">Methods<a href="#methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
 <section>
@@ -85,7 +86,29 @@ funding source and optional <code>identityOptions</code> and <code>updateCardFun
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#acceptpendingfundingsource">acceptPendingFundingSource</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:234</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:249</li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="assignfundingsourcetovirtualcard"><span>assign<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Virtual<wbr/>Card</span><a href="#assignfundingsourcetovirtualcard" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="assignfundingsourcetovirtualcard-1"><span class="tsd-kind-call-signature">assignFundingSourceToVirtualCard</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">request</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/AssignFundingSourceToVirtualCardRequest.html" class="tsd-signature-type tsd-kind-interface">AssignFundingSourceToVirtualCardRequest</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/VirtualCard.html" class="tsd-signature-type tsd-kind-interface">VirtualCard</a><span class="tsd-signature-symbol">&gt;</span><a href="#assignfundingsourcetovirtualcard-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Assign an active funding source to an issued virtual card. The card and
+funding source must be owned by the given owner and share the same
+currency.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">request</span>: <a href="../interfaces/AssignFundingSourceToVirtualCardRequest.html" class="tsd-signature-type tsd-kind-interface">AssignFundingSourceToVirtualCardRequest</a></span>
+<div class="tsd-comment tsd-typography"><p>Input request object containing <code>owner</code>, <code>cardId</code> and
+<code>fundingSourceId</code>.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/VirtualCard.html" class="tsd-signature-type tsd-kind-interface">VirtualCard</a><span class="tsd-signature-symbol">&gt;</span></h4><p>The updated virtual card.</p>
+<aside class="tsd-sources">
+<p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#assignfundingsourcetovirtualcard">assignFundingSourceToVirtualCard</a></p>
+<ul>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:261</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="cancelfundingsource"><span>cancel<wbr/>Funding<wbr/>Source</span><a href="#cancelfundingsource" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -104,7 +127,7 @@ funding source and optional <code>identityOptions</code> and <code>updateCardFun
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#cancelfundingsource">cancelFundingSource</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:246</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:274</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="chargeservicefeeforvirtualcard"><span>charge<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span><a href="#chargeservicefeeforvirtualcard" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -124,7 +147,7 @@ and <code>amount</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#chargeservicefeeforvirtualcard">chargeServiceFeeForVirtualCard</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:254</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:282</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="deleteprovisionalfundingsource"><span>delete<wbr/>Provisional<wbr/>Funding<wbr/>Source</span><a href="#deleteprovisionalfundingsource" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -144,7 +167,7 @@ provisional funding source to delete.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#deleteprovisionalfundingsource">deleteProvisionalFundingSource</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:318</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:346</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="deletevirtualcardsdata"><span>delete<wbr/>Virtual<wbr/>Cards<wbr/>Data</span><a href="#deletevirtualcardsdata" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -164,7 +187,7 @@ and optional <code>inactiveSince</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#deletevirtualcardsdata">deleteVirtualCardsData</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:285</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:313</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="listfundingsourcesbysub"><span>list<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span><a href="#listfundingsourcesbysub" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -183,7 +206,7 @@ and optional <code>inactiveSince</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#listfundingsourcesbysub">listFundingSourcesBySub</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:297</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:325</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="listprovisionalfundingsourcesbysub"><span>list<wbr/>Provisional<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span><a href="#listprovisionalfundingsourcesbysub" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -202,7 +225,7 @@ and optional <code>inactiveSince</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#listprovisionalfundingsourcesbysub">listProvisionalFundingSourcesBySub</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:307</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:335</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="listvirtualcardsbysub"><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sub</span><a href="#listvirtualcardsbysub" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -221,7 +244,7 @@ and optional <code>inactiveSince</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#listvirtualcardsbysub">listVirtualCardsBySub</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:325</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:353</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="listvirtualcardsbysudo"><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sudo</span><a href="#listvirtualcardsbysudo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -238,7 +261,7 @@ and optional <code>inactiveSince</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#listvirtualcardsbysudo">listVirtualCardsBySudo</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:335</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:363</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="refundservicefeeforvirtualcard"><span>refund<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span><a href="#refundservicefeeforvirtualcard" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -257,7 +280,7 @@ and optional <code>inactiveSince</code>.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#refundservicefeeforvirtualcard">refundServiceFeeForVirtualCard</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:270</li></ul></aside></div></li></ul></section>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:298</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="searchvirtualcardstransactions"><span>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</span><a href="#searchvirtualcardstransactions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -278,7 +301,7 @@ user id.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/SudoVirtualCardsAdminClient.html">SudoVirtualCardsAdminClient</a>.<a href="../interfaces/SudoVirtualCardsAdminClient.html#searchvirtualcardstransactions">searchVirtualCardsTransactions</a></p>
 <ul>
-<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:345</li></ul></aside></div></li></ul></section></section></details></div>
+<li>Defined in src/virtualCardsAdmin/virtualCardsAdminClient.ts:373</li></ul></aside></div></li></ul></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -297,7 +320,7 @@ user id.</p>
 <details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Constructors</summary>
 <div><a href="#constructor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a></div></details>
 <details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
-<div><a href="#acceptpendingfundingsource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>accept<wbr/>Pending<wbr/>Funding<wbr/>Source</span></a><a href="#cancelfundingsource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>cancel<wbr/>Funding<wbr/>Source</span></a><a href="#chargeservicefeeforvirtualcard"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>charge<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span></a><a href="#deleteprovisionalfundingsource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>delete<wbr/>Provisional<wbr/>Funding<wbr/>Source</span></a><a href="#deletevirtualcardsdata"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>delete<wbr/>Virtual<wbr/>Cards<wbr/>Data</span></a><a href="#listfundingsourcesbysub"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span></a><a href="#listprovisionalfundingsourcesbysub"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Provisional<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span></a><a href="#listvirtualcardsbysub"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sub</span></a><a href="#listvirtualcardsbysudo"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sudo</span></a><a href="#refundservicefeeforvirtualcard"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>refund<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span></a><a href="#searchvirtualcardstransactions"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</span></a></div></details></div></details></div>
+<div><a href="#acceptpendingfundingsource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>accept<wbr/>Pending<wbr/>Funding<wbr/>Source</span></a><a href="#assignfundingsourcetovirtualcard"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>assign<wbr/>Funding<wbr/>Source<wbr/>To<wbr/>Virtual<wbr/>Card</span></a><a href="#cancelfundingsource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>cancel<wbr/>Funding<wbr/>Source</span></a><a href="#chargeservicefeeforvirtualcard"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>charge<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span></a><a href="#deleteprovisionalfundingsource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>delete<wbr/>Provisional<wbr/>Funding<wbr/>Source</span></a><a href="#deletevirtualcardsdata"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>delete<wbr/>Virtual<wbr/>Cards<wbr/>Data</span></a><a href="#listfundingsourcesbysub"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span></a><a href="#listprovisionalfundingsourcesbysub"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Provisional<wbr/>Funding<wbr/>Sources<wbr/>By<wbr/>Sub</span></a><a href="#listvirtualcardsbysub"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sub</span></a><a href="#listvirtualcardsbysudo"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>list<wbr/>Virtual<wbr/>Cards<wbr/>By<wbr/>Sudo</span></a><a href="#refundservicefeeforvirtualcard"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>refund<wbr/>Service<wbr/>Fee<wbr/>For<wbr/>Virtual<wbr/>Card</span></a><a href="#searchvirtualcardstransactions"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>search<wbr/>Virtual<wbr/>Cards<wbr/>Transactions</span></a></div></details></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../index.html">@sudoplatform/sudo-virtual-cards-admin</a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container">

@@ -786,6 +786,30 @@ input DeleteProvisionalFundingSourceRequest {
   id: ID!
 }
 
+"""
+Request used to assign a funding source to a virtual card.
+"""
+input AssignFundingSourceToVirtualCardRequest {
+  """
+  ID of the owner (sub) of both the virtual card and the funding source.
+  Used as a consistency check: the request is rejected if either does not
+  belong to this owner.
+  """
+  owner: ID!
+
+  """
+  ID of the virtual card to assign the funding source to. The card must be
+  in the ISSUED state.
+  """
+  cardId: ID!
+
+  """
+  ID of the funding source to assign. The funding source must be ACTIVE and
+  have the same currency as the virtual card.
+  """
+  fundingSourceId: ID!
+}
+
 enum FeeReason {
   INSUFFICIENT_FUNDS
   FUNDING_ACCOUNT_CLOSED
@@ -894,4 +918,12 @@ type Mutation {
   deleteProvisionalFundingSource(
     input: DeleteProvisionalFundingSourceRequest!
   ): DeleteProvisionalFundingSourceResponse!
+
+  """
+  Assign an active funding source to an issued virtual card. The card and
+  funding source must be owned by the given owner and share the same currency.
+  """
+  assignFundingSourceToVirtualCard(
+    input: AssignFundingSourceToVirtualCardRequest!
+  ): VirtualCard!
 }

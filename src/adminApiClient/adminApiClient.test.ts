@@ -26,6 +26,9 @@ import {
   AcceptPendingFundingSourceDocument,
   AcceptPendingFundingSourceMutation,
   AcceptPendingFundingSourceRequest,
+  AssignFundingSourceToVirtualCardDocument,
+  AssignFundingSourceToVirtualCardMutation,
+  AssignFundingSourceToVirtualCardRequest,
   CancelFundingSourceDocument,
   CancelFundingSourceMutation,
   CancelFundingSourceRequest,
@@ -682,6 +685,47 @@ describe('\nadminApiClient tests', () => {
 
       await expect(
         adminApiClient.acceptPendingFundingSource(request),
+      ).rejects.toEqual(new UnknownGraphQLError(error))
+    })
+  })
+
+  describe('assignFundingSourceToVirtualCard tests', () => {
+    const request: AssignFundingSourceToVirtualCardRequest = {
+      owner: 'dummyOwner',
+      cardId: 'dummyCardId',
+      fundingSourceId: 'dummyFundingSourceId',
+    }
+    const result = GraphQLDataFactory.virtualCards
+
+    it('should return results', async () => {
+      when(
+        mockClient.mutate<AssignFundingSourceToVirtualCardMutation>(anything()),
+      ).thenResolve({
+        data: {
+          assignFundingSourceToVirtualCard: result,
+        } as AssignFundingSourceToVirtualCardMutation,
+      })
+
+      await expect(
+        adminApiClient.assignFundingSourceToVirtualCard(request),
+      ).resolves.toEqual(result)
+
+      const [actualMutation] = capture(mockClient.mutate as any).first()
+      expect(actualMutation).toEqual({
+        mutation: AssignFundingSourceToVirtualCardDocument,
+        variables: { input: request },
+      })
+      verify(mockClient.mutate(anything())).once()
+    })
+
+    it('should throw `UnknownGraphQLError` when non sudoplatform error thrown', async () => {
+      const error = new Error()
+      when(
+        mockClient.mutate<AssignFundingSourceToVirtualCardMutation>(anything()),
+      ).thenReject(error)
+
+      await expect(
+        adminApiClient.assignFundingSourceToVirtualCard(request),
       ).rejects.toEqual(new UnknownGraphQLError(error))
     })
   })

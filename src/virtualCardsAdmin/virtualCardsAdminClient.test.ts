@@ -29,6 +29,7 @@ import { ListFundingSourcesBySubRequest } from './request/listFundingSourcesBySu
 import { FundingSourceTransformer } from '../data/transformers/fundingSourceTransformer'
 import { VirtualCardTransformer } from '../data/transformers/virtualCardTransformer'
 import { AcceptPendingFundingSourceRequest } from './request/acceptPendingFundingSourceRequest'
+import { AssignFundingSourceToVirtualCardRequest } from './request/assignFundingSourceToVirtualCardRequest'
 import { CancelFundingSourceRequest } from './request/cancelFundingSourceRequest'
 import { ChargeServiceFeeForVirtualCardRequest } from './request/chargeServiceFeeForVirtualCardRequest'
 import { RefundServiceFeeForVirtualCardRequest } from './request/refundServiceFeeForVirtualCardRequest'
@@ -92,6 +93,39 @@ describe('\nsudoVirtualCardsAdmin tests', () => {
         updateCardFundingSource: false,
       })
       verify(mockAdminApiClient.acceptPendingFundingSource(anything())).once()
+    })
+  })
+
+  describe('assignFundingSourceToVirtualCard tests', () => {
+    const adminClientRequest: AssignFundingSourceToVirtualCardRequest = {
+      owner: 'dummyOwner',
+      cardId: 'dummyCardId',
+      fundingSourceId: 'dummyFundingSourceId',
+    }
+    const adminApiResult = GraphQLDataFactory.virtualCards
+
+    it('should return results', async () => {
+      when(
+        mockAdminApiClient.assignFundingSourceToVirtualCard(anything()),
+      ).thenResolve(adminApiResult)
+
+      await expect(
+        sudoVirtualCardsAdminClient.assignFundingSourceToVirtualCard(
+          adminClientRequest,
+        ),
+      ).resolves.toEqual(VirtualCardTransformer.toEntity(adminApiResult))
+
+      const [actualInput] = capture(
+        mockAdminApiClient.assignFundingSourceToVirtualCard,
+      ).first()
+      expect(actualInput).toEqual({
+        owner: 'dummyOwner',
+        cardId: 'dummyCardId',
+        fundingSourceId: 'dummyFundingSourceId',
+      })
+      verify(
+        mockAdminApiClient.assignFundingSourceToVirtualCard(anything()),
+      ).once()
     })
   })
 

@@ -22,6 +22,9 @@ import {
   AcceptPendingFundingSourceDocument,
   AcceptPendingFundingSourceMutation,
   AcceptPendingFundingSourceRequest,
+  AssignFundingSourceToVirtualCardDocument,
+  AssignFundingSourceToVirtualCardMutation,
+  AssignFundingSourceToVirtualCardRequest,
   CancelFundingSourceDocument,
   CancelFundingSourceMutation,
   CancelFundingSourceRequest,
@@ -295,6 +298,17 @@ export class AdminApiClient {
       variables: { input },
     })
     return data.cancelFundingSource
+  }
+
+  public async assignFundingSourceToVirtualCard(
+    input: AssignFundingSourceToVirtualCardRequest,
+  ): Promise<VirtualCard> {
+    const data =
+      await this.performMutation<AssignFundingSourceToVirtualCardMutation>({
+        mutation: AssignFundingSourceToVirtualCardDocument,
+        variables: { input },
+      })
+    return data.assignFundingSourceToVirtualCard
   }
 
   public async chargeServiceFeeForVirtualCard(

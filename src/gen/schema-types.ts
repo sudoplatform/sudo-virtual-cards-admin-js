@@ -20,6 +20,26 @@ export type AcceptPendingFundingSourceRequest = {
   updateCardFundingSource?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Request used to assign a funding source to a virtual card. */
+export type AssignFundingSourceToVirtualCardRequest = {
+  /**
+   * ID of the virtual card to assign the funding source to. The card must be
+   * in the ISSUED state.
+   */
+  cardId: Scalars['ID']['input']
+  /**
+   * ID of the funding source to assign. The funding source must be ACTIVE and
+   * have the same currency as the virtual card.
+   */
+  fundingSourceId: Scalars['ID']['input']
+  /**
+   * ID of the owner (sub) of both the virtual card and the funding source.
+   * Used as a consistency check: the request is rejected if either does not
+   * belong to this owner.
+   */
+  owner: Scalars['ID']['input']
+}
+
 export type BankAccountFundingSource = {
   __typename?: 'BankAccountFundingSource'
   /** The signed authorization providing authority to transact on the bank account. */
@@ -274,6 +294,11 @@ export type Mutation = {
   __typename?: 'Mutation'
   /** Accept a pending funding source with a given ID. */
   acceptPendingFundingSource: FundingSource
+  /**
+   * Assign an active funding source to an issued virtual card. The card and
+   * funding source must be owned by the given owner and share the same currency.
+   */
+  assignFundingSourceToVirtualCard: VirtualCard
   /** Cancel a funding source with a given funding source id. */
   cancelFundingSource: FundingSource
   /** Charge a service fee against a virtual card. */
@@ -288,6 +313,10 @@ export type Mutation = {
 
 export type MutationAcceptPendingFundingSourceArgs = {
   input: AcceptPendingFundingSourceRequest
+}
+
+export type MutationAssignFundingSourceToVirtualCardArgs = {
+  input: AssignFundingSourceToVirtualCardRequest
 }
 
 export type MutationCancelFundingSourceArgs = {
